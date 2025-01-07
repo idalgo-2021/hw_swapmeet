@@ -43,6 +43,10 @@ func (c *SwapmeetClient) GetPublishedAdvertisements(ctx context.Context, req *pb
 	return c.client.GetPublishedAdvertisements(ctx, req)
 }
 
+func (c *SwapmeetClient) GetPublishedAdvertisementByID(ctx context.Context, req *pb.GetPublishedAdvertisementByIDRequest) (*pb.GetPublishedAdvertisementByIDResponse, error) {
+	return c.client.GetPublishedAdvertisementByID(ctx, req)
+}
+
 func (c *SwapmeetClient) GetUserAdvertisements(ctx context.Context, req *pb.GetUserAdvertisementsRequest) (*pb.GetUserAdvertisementsResponse, error) {
 	return c.client.GetUserAdvertisements(ctx, req)
 }
@@ -55,6 +59,6 @@ func (c *SwapmeetClient) UpdateAdvertisement(ctx context.Context, req *pb.Update
 	return c.client.UpdateAdvertisement(ctx, req)
 }
 
-func (c *SwapmeetClient) GetPublishedAdvertisementByID(ctx context.Context, req *pb.GetPublishedAdvertisementByIDRequest) (*pb.GetPublishedAdvertisementByIDResponse, error) {
-	return c.client.GetPublishedAdvertisementByID(ctx, req)
+func (c *SwapmeetClient) SubmitAdvertisementForModeration(ctx context.Context, req *pb.SubmitAdvertisementForModerationRequest) (*pb.SubmitAdvertisementForModerationResponse, error) {
+	return c.client.SubmitAdvertisementForModeration(ctx, req)
 }

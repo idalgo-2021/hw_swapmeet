@@ -7,12 +7,19 @@ package api;
 service SwapmeetService {
     rpc GetCategories (GetCategoriesRequest) returns (GetCategoriesResponse); 
     rpc CreateCategory (CreateCategoryRequest) returns (CreateCategoryResponse); 
+    
     rpc GetPublishedAdvertisements (GetPublishedAdvertisementsRequest) returns (GetPublishedAdvertisementsResponse); 
     rpc GetPublishedAdvertisementByID (GetPublishedAdvertisementByIDRequest) returns (GetPublishedAdvertisementByIDResponse);
 
     rpc GetUserAdvertisements (GetUserAdvertisementsRequest) returns (GetUserAdvertisementsResponse);
     rpc CreateAdvertisement (CreateAdvertisementRequest) returns (CreateAdvertisementResponse);
     rpc UpdateAdvertisement (UpdateAdvertisementRequest) returns (UpdateAdvertisementResponse);
+    rpc SubmitAdvertisementForModeration (SubmitAdvertisementForModerationRequest) returns (SubmitAdvertisementForModerationResponse);
+   
+    rpc GetAllAdvertisements (GetAllAdvertisementsRequest) returns (GetAllAdvertisementsResponse);
+    rpc GetModerationAdvertisements (GetModerationAdvertisementsRequest) returns (GetModerationAdvertisementsResponse);
+    // rpc PublishAdvertisement (PublishAdvertisementRequest) returns (PublishAdvertisementResponse);
+    // rpc ReturnAdvertisementToDraft (ReturnAdvertisementToDraftRequest) returns (ReturnAdvertisementToDraftResponse);
 }
 
 message GetCategoriesRequest {}
@@ -68,8 +75,6 @@ message GetPublishedAdvertisementByIDResponse {
     PublishedAdvertisement advertisement = 1;
 }
 
-
-
 message GetUserAdvertisementsRequest {}
 
 message GetUserAdvertisementsResponse {
@@ -117,3 +122,61 @@ message UpdateAdvertisementResponse {
 }
 
 
+
+
+message SubmitAdvertisementForModerationRequest {
+    string advertisement_id = 1;
+}
+
+message SubmitAdvertisementForModerationResponse {
+    UserAdvertisement advertisement = 1;
+}
+
+message GetAllAdvertisementsRequest {}
+
+message GetAllAdvertisementsResponse {
+    repeated ModerationAdvertisement advertisements = 1;
+}
+
+message GetModerationAdvertisementsRequest {}
+
+message GetModerationAdvertisementsResponse {
+    repeated ModerationAdvertisement advertisements = 1;
+}
+
+// // Ручки для публикации объявления
+// message PublishAdvertisementRequest {
+//     string advertisement_id = 1;
+// }
+
+// message PublishAdvertisementResponse {
+//     PublishedAdvertisement advertisement = 1;
+// }
+
+// // Ручки для возврата объявления в черновики с комментарием модератора
+// message ReturnAdvertisementToDraftRequest {
+//     string advertisement_id = 1;
+//     string comment = 2;
+// }
+
+// message ReturnAdvertisementToDraftResponse {
+//     UserAdvertisement advertisement = 1;
+// }
+
+
+message ModerationAdvertisement {
+    string id = 1;
+    string user_id = 2;
+    string user_name = 3; 
+    string status_id = 4;
+    string status_name = 5; 
+    string category_id = 6;
+    string category_name = 7; 
+    string created_at = 8; 
+    string last_upd = 9; 
+    string title = 10; 
+    string description = 11; 
+    string price = 12; 
+    string contact_info = 13; 
+    string moderator_comment = 14; // Для комментария модератора
+}

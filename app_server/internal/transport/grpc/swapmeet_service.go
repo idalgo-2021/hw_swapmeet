@@ -22,6 +22,8 @@ type Service interface {
 	GetUserAdvertisements(ctx context.Context) ([]models.UserAdvertisement, error)
 	CreateAdvertisement(ctx context.Context, categoryID, title, description, price, contactInfo string) (*models.UserAdvertisement, error)
 	UpdateAdvertisement(ctx context.Context, advertisementID, title, description, price, contactInfo string) (*models.UserAdvertisement, error)
+
+	SubmitAdvertisementForModeration(ctx context.Context, advertisementID string) (*models.UserAdvertisement, error)
 }
 
 type SwapmeetService struct {
@@ -165,6 +167,9 @@ func (s *SwapmeetService) UpdateAdvertisement(ctx context.Context, req *client.U
 
 	advertisement, err := s.service.UpdateAdvertisement(ctx, req.AdvertisementId, req.Title, req.Description, req.Price, req.ContactInfo)
 	if err != nil {
+		if errors.Is(err, models.ErrAdvertisementNotFound) {
+			return nil, status.Errorf(codes.NotFound, "could not fetch advertisement: %v", err)
+		}
 		return nil, status.Errorf(codes.Internal, "failed to update advertisement: %v", err)
 	}
 
@@ -176,3 +181,24 @@ func (s *SwapmeetService) UpdateAdvertisement(ctx context.Context, req *client.U
 }
 
 //////
+
+func (s *SwapmeetService) SubmitAdvertisementForModeration(ctx context.Context, req *client.SubmitAdvertisementForModerationRequest) (*client.SubmitAdvertisementForModerationResponse, error) {
+	ctx, err := extractAuthToken(ctx)
+	if err != nil {
+		s.logger.Info(ctx, fmt.Sprintf("failed to extract auth token: %v", err))
+	}
+
+	advertisement, err := s.service.SubmitAdvertisementForModeration(ctx, req.AdvertisementId)
+	if err != nil {
+		if errors.Is(err, models.ErrAdvertisementNotFound) {
+			return nil, status.Errorf(codes.NotFound, "could not fetch advertisement: %v", err)
+		}
+		return nil, status.Errorf(codes.Internal, "failed to submit advertisement for moderation: %v", err)
+	}
+
+	resp := &client.SubmitAdvertisementForModerationResponse{
+		Advertisement: modelToGrpcUserAdvertisement(advertisement),
+	}
+
+	return resp, nil
+}

@@ -1047,6 +1047,96 @@ func (x *UpdateAdvertisementResponse) GetAdvertisement() *UserAdvertisement {
 	return nil
 }
 
+type SubmitAdvertisementForModerationRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	AdvertisementId string `protobuf:"bytes,1,opt,name=advertisement_id,json=advertisementId,proto3" json:"advertisement_id,omitempty"`
+}
+
+func (x *SubmitAdvertisementForModerationRequest) Reset() {
+	*x = SubmitAdvertisementForModerationRequest{}
+	mi := &file_swapmeet_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SubmitAdvertisementForModerationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SubmitAdvertisementForModerationRequest) ProtoMessage() {}
+
+func (x *SubmitAdvertisementForModerationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_swapmeet_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SubmitAdvertisementForModerationRequest.ProtoReflect.Descriptor instead.
+func (*SubmitAdvertisementForModerationRequest) Descriptor() ([]byte, []int) {
+	return file_swapmeet_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *SubmitAdvertisementForModerationRequest) GetAdvertisementId() string {
+	if x != nil {
+		return x.AdvertisementId
+	}
+	return ""
+}
+
+type SubmitAdvertisementForModerationResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Advertisement *UserAdvertisement `protobuf:"bytes,1,opt,name=advertisement,proto3" json:"advertisement,omitempty"`
+}
+
+func (x *SubmitAdvertisementForModerationResponse) Reset() {
+	*x = SubmitAdvertisementForModerationResponse{}
+	mi := &file_swapmeet_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SubmitAdvertisementForModerationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SubmitAdvertisementForModerationResponse) ProtoMessage() {}
+
+func (x *SubmitAdvertisementForModerationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_swapmeet_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SubmitAdvertisementForModerationResponse.ProtoReflect.Descriptor instead.
+func (*SubmitAdvertisementForModerationResponse) Descriptor() ([]byte, []int) {
+	return file_swapmeet_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *SubmitAdvertisementForModerationResponse) GetAdvertisement() *UserAdvertisement {
+	if x != nil {
+		return x.Advertisement
+	}
+	return nil
+}
+
 var File_swapmeet_proto protoreflect.FileDescriptor
 
 var file_swapmeet_proto_rawDesc = []byte{
@@ -1184,7 +1274,19 @@ var file_swapmeet_proto_rawDesc = []byte{
 	0x61, 0x64, 0x76, 0x65, 0x72, 0x74, 0x69, 0x73, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x18, 0x01, 0x20,
 	0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x41, 0x64,
 	0x76, 0x65, 0x72, 0x74, 0x69, 0x73, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x52, 0x0d, 0x61, 0x64, 0x76,
-	0x65, 0x72, 0x74, 0x69, 0x73, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x32, 0x9f, 0x05, 0x0a, 0x0f, 0x53,
+	0x65, 0x72, 0x74, 0x69, 0x73, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x22, 0x54, 0x0a, 0x27, 0x53, 0x75,
+	0x62, 0x6d, 0x69, 0x74, 0x41, 0x64, 0x76, 0x65, 0x72, 0x74, 0x69, 0x73, 0x65, 0x6d, 0x65, 0x6e,
+	0x74, 0x46, 0x6f, 0x72, 0x4d, 0x6f, 0x64, 0x65, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x29, 0x0a, 0x10, 0x61, 0x64, 0x76, 0x65, 0x72, 0x74, 0x69,
+	0x73, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x0f, 0x61, 0x64, 0x76, 0x65, 0x72, 0x74, 0x69, 0x73, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x49, 0x64,
+	0x22, 0x68, 0x0a, 0x28, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x41, 0x64, 0x76, 0x65, 0x72, 0x74,
+	0x69, 0x73, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x46, 0x6f, 0x72, 0x4d, 0x6f, 0x64, 0x65, 0x72, 0x61,
+	0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3c, 0x0a, 0x0d,
+	0x61, 0x64, 0x76, 0x65, 0x72, 0x74, 0x69, 0x73, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x41, 0x64,
+	0x76, 0x65, 0x72, 0x74, 0x69, 0x73, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x52, 0x0d, 0x61, 0x64, 0x76,
+	0x65, 0x72, 0x74, 0x69, 0x73, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x32, 0xa0, 0x06, 0x0a, 0x0f, 0x53,
 	0x77, 0x61, 0x70, 0x6d, 0x65, 0x65, 0x74, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x46,
 	0x0a, 0x0d, 0x47, 0x65, 0x74, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x69, 0x65, 0x73, 0x12,
 	0x19, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x47, 0x65, 0x74, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72,
@@ -1226,9 +1328,17 @@ var file_swapmeet_proto_rawDesc = []byte{
 	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x41, 0x64, 0x76, 0x65, 0x72, 0x74, 0x69, 0x73, 0x65, 0x6d,
 	0x65, 0x6e, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x20, 0x2e, 0x61, 0x70, 0x69,
 	0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x41, 0x64, 0x76, 0x65, 0x72, 0x74, 0x69, 0x73, 0x65,
-	0x6d, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x17, 0x5a, 0x15,
-	0x70, 0x6b, 0x67, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x73, 0x77, 0x61, 0x70, 0x6d, 0x65, 0x65, 0x74,
-	0x5f, 0x67, 0x72, 0x70, 0x63, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6d, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x7f, 0x0a, 0x20,
+	0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x41, 0x64, 0x76, 0x65, 0x72, 0x74, 0x69, 0x73, 0x65, 0x6d,
+	0x65, 0x6e, 0x74, 0x46, 0x6f, 0x72, 0x4d, 0x6f, 0x64, 0x65, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e,
+	0x12, 0x2c, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x41, 0x64, 0x76,
+	0x65, 0x72, 0x74, 0x69, 0x73, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x46, 0x6f, 0x72, 0x4d, 0x6f, 0x64,
+	0x65, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2d,
+	0x2e, 0x61, 0x70, 0x69, 0x2e, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x41, 0x64, 0x76, 0x65, 0x72,
+	0x74, 0x69, 0x73, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x46, 0x6f, 0x72, 0x4d, 0x6f, 0x64, 0x65, 0x72,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x17, 0x5a,
+	0x15, 0x70, 0x6b, 0x67, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x73, 0x77, 0x61, 0x70, 0x6d, 0x65, 0x65,
+	0x74, 0x5f, 0x67, 0x72, 0x70, 0x63, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1243,25 +1353,27 @@ func file_swapmeet_proto_rawDescGZIP() []byte {
 	return file_swapmeet_proto_rawDescData
 }
 
-var file_swapmeet_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_swapmeet_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_swapmeet_proto_goTypes = []any{
-	(*GetCategoriesRequest)(nil),                  // 0: api.GetCategoriesRequest
-	(*GetCategoriesResponse)(nil),                 // 1: api.GetCategoriesResponse
-	(*Category)(nil),                              // 2: api.Category
-	(*CreateCategoryRequest)(nil),                 // 3: api.CreateCategoryRequest
-	(*CreateCategoryResponse)(nil),                // 4: api.CreateCategoryResponse
-	(*GetPublishedAdvertisementsRequest)(nil),     // 5: api.GetPublishedAdvertisementsRequest
-	(*GetPublishedAdvertisementsResponse)(nil),    // 6: api.GetPublishedAdvertisementsResponse
-	(*PublishedAdvertisement)(nil),                // 7: api.PublishedAdvertisement
-	(*GetPublishedAdvertisementByIDRequest)(nil),  // 8: api.GetPublishedAdvertisementByIDRequest
-	(*GetPublishedAdvertisementByIDResponse)(nil), // 9: api.GetPublishedAdvertisementByIDResponse
-	(*GetUserAdvertisementsRequest)(nil),          // 10: api.GetUserAdvertisementsRequest
-	(*GetUserAdvertisementsResponse)(nil),         // 11: api.GetUserAdvertisementsResponse
-	(*UserAdvertisement)(nil),                     // 12: api.UserAdvertisement
-	(*CreateAdvertisementRequest)(nil),            // 13: api.CreateAdvertisementRequest
-	(*CreateAdvertisementResponse)(nil),           // 14: api.CreateAdvertisementResponse
-	(*UpdateAdvertisementRequest)(nil),            // 15: api.UpdateAdvertisementRequest
-	(*UpdateAdvertisementResponse)(nil),           // 16: api.UpdateAdvertisementResponse
+	(*GetCategoriesRequest)(nil),                     // 0: api.GetCategoriesRequest
+	(*GetCategoriesResponse)(nil),                    // 1: api.GetCategoriesResponse
+	(*Category)(nil),                                 // 2: api.Category
+	(*CreateCategoryRequest)(nil),                    // 3: api.CreateCategoryRequest
+	(*CreateCategoryResponse)(nil),                   // 4: api.CreateCategoryResponse
+	(*GetPublishedAdvertisementsRequest)(nil),        // 5: api.GetPublishedAdvertisementsRequest
+	(*GetPublishedAdvertisementsResponse)(nil),       // 6: api.GetPublishedAdvertisementsResponse
+	(*PublishedAdvertisement)(nil),                   // 7: api.PublishedAdvertisement
+	(*GetPublishedAdvertisementByIDRequest)(nil),     // 8: api.GetPublishedAdvertisementByIDRequest
+	(*GetPublishedAdvertisementByIDResponse)(nil),    // 9: api.GetPublishedAdvertisementByIDResponse
+	(*GetUserAdvertisementsRequest)(nil),             // 10: api.GetUserAdvertisementsRequest
+	(*GetUserAdvertisementsResponse)(nil),            // 11: api.GetUserAdvertisementsResponse
+	(*UserAdvertisement)(nil),                        // 12: api.UserAdvertisement
+	(*CreateAdvertisementRequest)(nil),               // 13: api.CreateAdvertisementRequest
+	(*CreateAdvertisementResponse)(nil),              // 14: api.CreateAdvertisementResponse
+	(*UpdateAdvertisementRequest)(nil),               // 15: api.UpdateAdvertisementRequest
+	(*UpdateAdvertisementResponse)(nil),              // 16: api.UpdateAdvertisementResponse
+	(*SubmitAdvertisementForModerationRequest)(nil),  // 17: api.SubmitAdvertisementForModerationRequest
+	(*SubmitAdvertisementForModerationResponse)(nil), // 18: api.SubmitAdvertisementForModerationResponse
 }
 var file_swapmeet_proto_depIdxs = []int32{
 	2,  // 0: api.GetCategoriesResponse.categories:type_name -> api.Category
@@ -1271,25 +1383,28 @@ var file_swapmeet_proto_depIdxs = []int32{
 	12, // 4: api.GetUserAdvertisementsResponse.advertisements:type_name -> api.UserAdvertisement
 	12, // 5: api.CreateAdvertisementResponse.advertisement:type_name -> api.UserAdvertisement
 	12, // 6: api.UpdateAdvertisementResponse.advertisement:type_name -> api.UserAdvertisement
-	0,  // 7: api.SwapmeetService.GetCategories:input_type -> api.GetCategoriesRequest
-	3,  // 8: api.SwapmeetService.CreateCategory:input_type -> api.CreateCategoryRequest
-	5,  // 9: api.SwapmeetService.GetPublishedAdvertisements:input_type -> api.GetPublishedAdvertisementsRequest
-	8,  // 10: api.SwapmeetService.GetPublishedAdvertisementByID:input_type -> api.GetPublishedAdvertisementByIDRequest
-	10, // 11: api.SwapmeetService.GetUserAdvertisements:input_type -> api.GetUserAdvertisementsRequest
-	13, // 12: api.SwapmeetService.CreateAdvertisement:input_type -> api.CreateAdvertisementRequest
-	15, // 13: api.SwapmeetService.UpdateAdvertisement:input_type -> api.UpdateAdvertisementRequest
-	1,  // 14: api.SwapmeetService.GetCategories:output_type -> api.GetCategoriesResponse
-	4,  // 15: api.SwapmeetService.CreateCategory:output_type -> api.CreateCategoryResponse
-	6,  // 16: api.SwapmeetService.GetPublishedAdvertisements:output_type -> api.GetPublishedAdvertisementsResponse
-	9,  // 17: api.SwapmeetService.GetPublishedAdvertisementByID:output_type -> api.GetPublishedAdvertisementByIDResponse
-	11, // 18: api.SwapmeetService.GetUserAdvertisements:output_type -> api.GetUserAdvertisementsResponse
-	14, // 19: api.SwapmeetService.CreateAdvertisement:output_type -> api.CreateAdvertisementResponse
-	16, // 20: api.SwapmeetService.UpdateAdvertisement:output_type -> api.UpdateAdvertisementResponse
-	14, // [14:21] is the sub-list for method output_type
-	7,  // [7:14] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	12, // 7: api.SubmitAdvertisementForModerationResponse.advertisement:type_name -> api.UserAdvertisement
+	0,  // 8: api.SwapmeetService.GetCategories:input_type -> api.GetCategoriesRequest
+	3,  // 9: api.SwapmeetService.CreateCategory:input_type -> api.CreateCategoryRequest
+	5,  // 10: api.SwapmeetService.GetPublishedAdvertisements:input_type -> api.GetPublishedAdvertisementsRequest
+	8,  // 11: api.SwapmeetService.GetPublishedAdvertisementByID:input_type -> api.GetPublishedAdvertisementByIDRequest
+	10, // 12: api.SwapmeetService.GetUserAdvertisements:input_type -> api.GetUserAdvertisementsRequest
+	13, // 13: api.SwapmeetService.CreateAdvertisement:input_type -> api.CreateAdvertisementRequest
+	15, // 14: api.SwapmeetService.UpdateAdvertisement:input_type -> api.UpdateAdvertisementRequest
+	17, // 15: api.SwapmeetService.SubmitAdvertisementForModeration:input_type -> api.SubmitAdvertisementForModerationRequest
+	1,  // 16: api.SwapmeetService.GetCategories:output_type -> api.GetCategoriesResponse
+	4,  // 17: api.SwapmeetService.CreateCategory:output_type -> api.CreateCategoryResponse
+	6,  // 18: api.SwapmeetService.GetPublishedAdvertisements:output_type -> api.GetPublishedAdvertisementsResponse
+	9,  // 19: api.SwapmeetService.GetPublishedAdvertisementByID:output_type -> api.GetPublishedAdvertisementByIDResponse
+	11, // 20: api.SwapmeetService.GetUserAdvertisements:output_type -> api.GetUserAdvertisementsResponse
+	14, // 21: api.SwapmeetService.CreateAdvertisement:output_type -> api.CreateAdvertisementResponse
+	16, // 22: api.SwapmeetService.UpdateAdvertisement:output_type -> api.UpdateAdvertisementResponse
+	18, // 23: api.SwapmeetService.SubmitAdvertisementForModeration:output_type -> api.SubmitAdvertisementForModerationResponse
+	16, // [16:24] is the sub-list for method output_type
+	8,  // [8:16] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_swapmeet_proto_init() }
@@ -1303,7 +1418,7 @@ func file_swapmeet_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_swapmeet_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   17,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

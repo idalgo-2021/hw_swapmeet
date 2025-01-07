@@ -15,6 +15,69 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/advertisement/moderation/{id}": {
+            "put": {
+                "description": "Move an advertisement to the \"moderation\" status (requires authentication)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Advertisements"
+                ],
+                "summary": "Submit advertisement for moderation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Access Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Advertisement ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Advertisement submitted for moderation successfully",
+                        "schema": {
+                            "$ref": "#/definitions/swapmeet_grpc.SubmitAdvertisementForModerationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Advertisement not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/advertisement/{id}": {
             "get": {
                 "description": "Retrieve a published advertisement by its ID",
@@ -131,7 +194,7 @@ const docTemplate = `{
                 "tags": [
                     "Advertisements"
                 ],
-                "summary": "Update Advertisement",
+                "summary": "Update advertisement",
                 "parameters": [
                     {
                         "type": "string",
@@ -775,6 +838,14 @@ const docTemplate = `{
                 },
                 "user_name": {
                     "type": "string"
+                }
+            }
+        },
+        "swapmeet_grpc.SubmitAdvertisementForModerationResponse": {
+            "type": "object",
+            "properties": {
+                "advertisement": {
+                    "$ref": "#/definitions/swapmeet_grpc.UserAdvertisement"
                 }
             }
         },

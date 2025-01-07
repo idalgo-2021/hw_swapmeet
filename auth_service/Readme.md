@@ -58,7 +58,7 @@
 
 ---
 
-### 4. **RegisterUser**
+### 4. **RegisterUser** <b><font color="red">НЕ РЕАЛИЗОВАНО</font></b>
 
 Метод для регистрации новых пользователей с указанием `username`, `password` и `email`.
 

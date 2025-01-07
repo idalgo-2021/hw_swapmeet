@@ -132,6 +132,11 @@ definitions:
       user_name:
         type: string
     type: object
+  swapmeet_grpc.SubmitAdvertisementForModerationResponse:
+    properties:
+      advertisement:
+        $ref: '#/definitions/swapmeet_grpc.UserAdvertisement'
+    type: object
   swapmeet_grpc.UpdateAdvertisementResponse:
     properties:
       advertisement:
@@ -207,6 +212,48 @@ paths:
           schema:
             type: string
       summary: Get published advertisement by ID
+      tags:
+      - Advertisements
+  /advertisement/moderation/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Move an advertisement to the "moderation" status (requires authentication)
+      parameters:
+      - description: Bearer Access Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Advertisement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Advertisement submitted for moderation successfully
+          schema:
+            $ref: '#/definitions/swapmeet_grpc.SubmitAdvertisementForModerationResponse'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Advertisement not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Submit advertisement for moderation
       tags:
       - Advertisements
   /advertisements:
@@ -319,7 +366,7 @@ paths:
           description: Internal server error
           schema:
             type: string
-      summary: Update Advertisement
+      summary: Update advertisement
       tags:
       - Advertisements
   /advertisements/user:

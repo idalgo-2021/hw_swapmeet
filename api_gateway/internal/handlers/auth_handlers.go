@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"strings"
 
@@ -19,7 +18,10 @@ type AuthHandlers struct {
 }
 
 func NewAuthHandlers(ctx context.Context, client *grpc_clients.AuthClient) *AuthHandlers {
-	return &AuthHandlers{client: client, logger: logger.GetLoggerFromCtx(ctx)}
+	return &AuthHandlers{
+		client: client,
+		logger: logger.GetLoggerFromCtx(ctx),
+	}
 }
 
 // GenerateToken
@@ -36,9 +38,8 @@ func NewAuthHandlers(ctx context.Context, client *grpc_clients.AuthClient) *Auth
 // @Router /auth/token [post]
 func (h *AuthHandlers) GenerateToken(w http.ResponseWriter, r *http.Request) {
 	var httpReq models.GenerateTokenRequest
-	if err := json.NewDecoder(r.Body).Decode(&httpReq); err != nil {
-		h.logger.Info(r.Context(), "Invalid request format")
-		http.Error(w, "Invalid request format", http.StatusBadRequest)
+	if err := h.decodeJSONBody(r, &httpReq); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
@@ -117,9 +118,8 @@ func (h *AuthHandlers) ValidateToken(w http.ResponseWriter, r *http.Request) {
 // @Router /auth/refresh [post]
 func (h *AuthHandlers) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	var httpReq models.RefreshTokenRequest
-	if err := json.NewDecoder(r.Body).Decode(&httpReq); err != nil {
-		h.logger.Info(r.Context(), "Invalid request format")
-		http.Error(w, "Invalid request format", http.StatusBadRequest)
+	if err := h.decodeJSONBody(r, &httpReq); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
@@ -157,20 +157,19 @@ func (h *AuthHandlers) RefreshToken(w http.ResponseWriter, r *http.Request) {
 // @Router /auth/register [post]
 func (h *AuthHandlers) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	var httpReq models.RegisterUserRequest
-	if err := json.NewDecoder(r.Body).Decode(&httpReq); err != nil {
-		h.logger.Info(r.Context(), "Invalid request format")
-		http.Error(w, "Invalid request format", http.StatusBadRequest)
+	if err := h.decodeJSONBody(r, &httpReq); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-
 	username := strings.TrimSpace(httpReq.Username)
 	password := strings.TrimSpace(httpReq.Password)
-	email := strings.TrimSpace(httpReq.Email)
 	if username == "" || password == "" {
 		h.logger.Info(r.Context(), "Missing username or password")
 		http.Error(w, "Username and password are required", http.StatusBadRequest)
 		return
 	}
+
+	email := strings.TrimSpace(httpReq.Email)
 	if email == "" {
 		h.logger.Info(r.Context(), "Missing email")
 		http.Error(w, "Email is required", http.StatusBadRequest)

@@ -31,9 +31,11 @@ func NewRouter(ctx context.Context, authClient *grpc_clients.AuthClient, swapmee
 	r.HandleFunc("/advertisements", swapmeetHandlers.GetPublishedAdvertisements).Methods(http.MethodGet)
 	r.HandleFunc("/advertisement/{id:[0-9]+}", swapmeetHandlers.GetPublishedAdvertisementByID).Methods(http.MethodGet)
 
+	r.Handle("/advertisements/user", handlers.AuthMiddleware(authClient)(http.HandlerFunc(swapmeetHandlers.GetUserAdvertisements))).Methods(http.MethodGet)
 	r.Handle("/advertisements", handlers.AuthMiddleware(authClient)(http.HandlerFunc(swapmeetHandlers.CreateAdvertisement))).Methods(http.MethodPost)
 	r.Handle("/advertisements", handlers.AuthMiddleware(authClient)(http.HandlerFunc(swapmeetHandlers.UpdateAdvertisement))).Methods(http.MethodPut)
-	r.Handle("/advertisements/user", handlers.AuthMiddleware(authClient)(http.HandlerFunc(swapmeetHandlers.GetUserAdvertisements))).Methods(http.MethodGet)
+
+	r.Handle("/advertisement/moderation/{id:[0-9]+}", handlers.AuthMiddleware(authClient)(http.HandlerFunc(swapmeetHandlers.SubmitAdvertisementForModeration))).Methods(http.MethodPut)
 
 	r.Use(loggingMiddleware(ctx))
 

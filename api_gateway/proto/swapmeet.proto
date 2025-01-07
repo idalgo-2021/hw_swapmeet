@@ -7,12 +7,14 @@ package api;
 service SwapmeetService {
     rpc GetCategories (GetCategoriesRequest) returns (GetCategoriesResponse); 
     rpc CreateCategory (CreateCategoryRequest) returns (CreateCategoryResponse); 
+
     rpc GetPublishedAdvertisements (GetPublishedAdvertisementsRequest) returns (GetPublishedAdvertisementsResponse); 
     rpc GetPublishedAdvertisementByID (GetPublishedAdvertisementByIDRequest) returns (GetPublishedAdvertisementByIDResponse);
 
     rpc GetUserAdvertisements (GetUserAdvertisementsRequest) returns (GetUserAdvertisementsResponse);
     rpc CreateAdvertisement (CreateAdvertisementRequest) returns (CreateAdvertisementResponse);
     rpc UpdateAdvertisement (UpdateAdvertisementRequest) returns (UpdateAdvertisementResponse);
+    rpc SubmitAdvertisementForModeration (SubmitAdvertisementForModerationRequest) returns (SubmitAdvertisementForModerationResponse);
 }
 
 message GetCategoriesRequest {}
@@ -113,5 +115,13 @@ message UpdateAdvertisementRequest {
 }
 
 message UpdateAdvertisementResponse {
+    UserAdvertisement advertisement = 1;
+}
+
+message SubmitAdvertisementForModerationRequest {
+    string advertisement_id = 1;
+}
+
+message SubmitAdvertisementForModerationResponse {
     UserAdvertisement advertisement = 1;
 }

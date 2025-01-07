@@ -223,7 +223,7 @@ func (h *SwapmeetHandlers) CreateAdvertisement(w http.ResponseWriter, r *http.Re
 	h.writeJSONResponse(w, r, http.StatusOK, resp)
 }
 
-// @Summary Update Advertisement
+// @Summary Update advertisement
 // @Description Update an existing advertisement (requires authentication)
 // @Tags Advertisements
 // @Accept json
@@ -254,6 +254,41 @@ func (h *SwapmeetHandlers) UpdateAdvertisement(w http.ResponseWriter, r *http.Re
 
 	ctx := h.enrichContextWithAuth(r.Context(), r)
 	resp, err := h.client.UpdateAdvertisement(ctx, grpcReq)
+	if err != nil {
+		h.handleGRPCError(r.Context(), err, w)
+		return
+	}
+
+	h.writeJSONResponse(w, r, http.StatusOK, resp)
+}
+
+// @Summary Submit advertisement for moderation
+// @Description Move an advertisement to the "moderation" status (requires authentication)
+// @Tags Advertisements
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer Access Token"
+// @Param id path string true "Advertisement ID"
+// @Success 200 {object} pb.SubmitAdvertisementForModerationResponse "Advertisement submitted for moderation successfully"
+// @Failure 400 {string} string "Invalid request"
+// @Failure 401 {string} string "Unauthorized"
+// @Failure 404 {string} string "Advertisement not found"
+// @Failure 500 {string} string "Internal server error"
+// @Router /advertisement/moderation/{id} [put]
+func (h *SwapmeetHandlers) SubmitAdvertisementForModeration(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	adID, ok := vars["id"]
+	if !ok || adID == "" {
+		http.Error(w, "Missing 'id' parameter in route", http.StatusBadRequest)
+		return
+	}
+
+	grpcReq := &pb.SubmitAdvertisementForModerationRequest{
+		AdvertisementId: adID,
+	}
+
+	ctx := h.enrichContextWithAuth(r.Context(), r)
+	resp, err := h.client.SubmitAdvertisementForModeration(ctx, grpcReq)
 	if err != nil {
 		h.handleGRPCError(r.Context(), err, w)
 		return

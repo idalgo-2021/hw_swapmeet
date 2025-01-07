@@ -43,6 +43,14 @@ func (h *SwapmeetHandlers) writeJSONResponse(w http.ResponseWriter, r *http.Requ
 	}
 }
 
+func (h *AuthHandlers) decodeJSONBody(r *http.Request, v interface{}) error {
+	if err := json.NewDecoder(r.Body).Decode(v); err != nil {
+		h.logger.Info(r.Context(), "Invalid request body: "+err.Error())
+		return err
+	}
+	return nil
+}
+
 func (h *SwapmeetHandlers) decodeJSONBody(r *http.Request, v interface{}) error {
 	if err := json.NewDecoder(r.Body).Decode(v); err != nil {
 		h.logger.Info(r.Context(), "Invalid request body: "+err.Error())

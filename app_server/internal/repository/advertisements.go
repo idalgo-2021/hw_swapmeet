@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/lib/pq"
 	"github.com/redis/go-redis/v9"
@@ -73,13 +74,15 @@ func (r *DBSwapmeetRepo) getPublishedAdvertisementsFromDB(ctx context.Context, c
 	}
 
 	err := r.db.Db.SelectContext(ctx, &advertisements, query, args...)
-
 	if err != nil {
+		r.logger.Info(ctx, fmt.Sprintf("DB query error: %v", err))
+
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, models.ErrAdvertisementsNotFound
 		}
 		return nil, models.ErrDBQuery
 	}
+
 	return advertisements, nil
 }
 
@@ -128,6 +131,8 @@ func (r *DBSwapmeetRepo) GetPublishedAdvertisementByID(ctx context.Context, adve
 		&advertisement.Description, &advertisement.Price, &advertisement.ContactInfo,
 	)
 	if err != nil {
+		r.logger.Info(ctx, fmt.Sprintf("DB query error: %v", err))
+
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, models.ErrAdvertisementNotFound
 		}
@@ -179,11 +184,14 @@ func (r *DBSwapmeetRepo) getUserAdvertisementsFromDB(ctx context.Context, userID
 	`
 	err := r.db.Db.SelectContext(ctx, &advertisements, query, userID)
 	if err != nil {
+		r.logger.Info(ctx, fmt.Sprintf("DB query error: %v", err))
+
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, models.ErrAdvertisementsNotFound
 		}
 		return nil, models.ErrDBQuery
 	}
+
 	return advertisements, nil
 }
 
@@ -209,6 +217,8 @@ func (r *DBSwapmeetRepo) CreateAdvertisement(ctx context.Context, userID, catego
 		&advertisement.StatusID,
 	)
 	if err != nil {
+		r.logger.Info(ctx, fmt.Sprintf("DB query error: %v", err))
+
 		return nil, err
 	}
 	return &advertisement, nil
@@ -216,11 +226,17 @@ func (r *DBSwapmeetRepo) CreateAdvertisement(ctx context.Context, userID, catego
 
 func (r *DBSwapmeetRepo) UpdateAdvertisement(ctx context.Context, userID, advertisementID, title, description, price, contactInfo string) (*models.UserAdvertisement, error) {
 
+	// FIXME: Правильно сбрасывать статус в DRAFT только:
+	// 	- если реквизиты действительно были изменены
+	//	- если были изменены определенные реквизиты(например, при изменении цены или контактов не нужно возвращать обяъаление в черновики)
+
 	var advertisement models.UserAdvertisement
 
 	query := `
         UPDATE advertisements 
-        SET title = $1, description = $2, price = $3, contact_info = $4, last_upd = NOW() 
+        SET title = $1, description = $2, price = $3, contact_info = $4, last_upd = NOW(), status_id = (
+            SELECT id FROM statuses WHERE status = 'draft'
+        )
         WHERE id = $5 AND user_id = $6 
         RETURNING id, user_id, category_id, title, description, price, contact_info, status_id
     `
@@ -234,8 +250,52 @@ func (r *DBSwapmeetRepo) UpdateAdvertisement(ctx context.Context, userID, advert
 		&advertisement.ContactInfo,
 		&advertisement.StatusID,
 	)
+
 	if err != nil {
-		return nil, err
+		r.logger.Info(ctx, fmt.Sprintf("DB query error: %v", err))
+
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrAdvertisementNotFound
+		}
+		return nil, models.ErrDBQuery
 	}
+
+	return &advertisement, nil
+}
+
+////
+
+func (r *DBSwapmeetRepo) SetModerationStatusForAdvertisement(ctx context.Context, userID, advertisementID string) (*models.UserAdvertisement, error) {
+
+	var advertisement models.UserAdvertisement
+
+	query := `
+        UPDATE advertisements 
+        SET last_upd = NOW(), status_id = (
+            SELECT id FROM statuses WHERE status = 'moderation'
+        )
+        WHERE id = $1 AND user_id = $2 
+        RETURNING id, user_id, category_id, title, description, price, contact_info, status_id
+    `
+	err := r.db.Db.QueryRowContext(ctx, query, advertisementID, userID).Scan(
+		&advertisement.ID,
+		&advertisement.UserID,
+		&advertisement.CategoryID,
+		&advertisement.Title,
+		&advertisement.Description,
+		&advertisement.Price,
+		&advertisement.ContactInfo,
+		&advertisement.StatusID,
+	)
+
+	if err != nil {
+		r.logger.Info(ctx, fmt.Sprintf("DB query error: %v", err))
+
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrAdvertisementNotFound
+		}
+		return nil, models.ErrDBQuery
+	}
+
 	return &advertisement, nil
 }

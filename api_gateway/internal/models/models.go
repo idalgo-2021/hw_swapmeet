@@ -35,3 +35,7 @@ type UpdateAdvertisementRequest struct {
 	Price           string `json:"price"`
 	ContactInfo     string `json:"contact_info"`
 }
+
+type SubmitAdvertisementForModerationRequest struct {
+	AdvertisementId string `json:"advertisement_id,"`
+}

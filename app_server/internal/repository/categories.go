@@ -38,6 +38,8 @@ func (r *DBSwapmeetRepo) getCategoriesFromDB(ctx context.Context) ([]models.Cate
 	`
 	err := r.db.Db.SelectContext(ctx, &categories, query)
 	if err != nil {
+		r.logger.Info(ctx, fmt.Sprintf("DB query error: %v", err))
+
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, models.ErrCategoriesNotFound
 		}
@@ -63,6 +65,7 @@ func (r *DBSwapmeetRepo) setCategoriesToCache(ctx context.Context, categories []
 }
 
 func (r *DBSwapmeetRepo) CreateCategory(ctx context.Context, userID string, name string, parentID int) (*models.Category, error) {
+
 	category, err := r.createCategoryInDB(ctx, userID, name, parentID)
 	if err != nil {
 		return nil, err
@@ -87,7 +90,9 @@ func (r *DBSwapmeetRepo) createCategoryInDB(ctx context.Context, userID string, 
 		&category.ID,
 		&category.Name,
 		&category.ParentID)
+
 	if err != nil {
+		r.logger.Info(ctx, fmt.Sprintf("DB query error: %v", err))
 		return nil, err
 	}
 	return &category, nil
