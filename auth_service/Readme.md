@@ -58,7 +58,7 @@
 
 ---
 
-### 4. **RegisterUser** <b><font color="red">НЕ РЕАЛИЗОВАНО</font></b>
+### 4. **RegisterUser** 
 
 Метод для регистрации новых пользователей с указанием `username`, `password` и `email`.
 
@@ -74,7 +74,7 @@
 
 ---
 
-### 5. **RevokeToken**
+### 5. **RevokeToken** <b><font color="red">НЕ РЕАЛИЗОВАНО</font></b>
 
 Метод для отзыва (аннулирования) токена `access_token` пользователя.
 
