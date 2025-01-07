@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: postgres:16.1-alpine3.19
+    container_name: postgres_swapmeetDB
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT}:5432" # Хостовый порт - ${POSTGRES_PORT}, внутренний - 5432
+    networks:
+      - network_swapmeet
+    volumes:
+      #- postgres_data:/var/lib/postgresql/data
+      - ./.private/data/postgres:/var/lib/postgresql/data
+      - ./migrations/:/docker-entrypoint-initdb.d/
+
+  redis:
+    image: redis:7
+    container_name: redis_container
+    ports:
+      - "${REDIS_PORT}:6379" 
+    #volumes:
+      #- redis_data:/data
+      #- ./.private/data/redis:/var/lib/postgresql/data
+    command: ["redis-server", "--save", "", "--appendonly", "no"] # Отключаем персистентность 
+
+# volumes:
+  # postgres_data:
+  # redis_data:
+
+networks:
+  network_swapmeet:

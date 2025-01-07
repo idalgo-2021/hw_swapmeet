@@ -1,0 +1,128 @@
+<mxfile host="65bd71144e">
+    <diagram name="Page-1" id="r7tzfs24YAZpzFqHRcqu">
+        <mxGraphModel dx="1600" dy="2058" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-1" value="&lt;div&gt;&lt;b&gt;Простая барахолка&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Описание функционала:&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Просмотр объявлений:&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;* Все пользователи могут просматривать объявления в выбранных категориях + с фильтрацией по ценам(ограничимся одной валютой).&lt;/span&gt;&lt;/div&gt;&lt;div&gt;* Категории пока не ранжируются, объявления отображаются в порядке убывания даты публикации (начиная с самых новых).&lt;/div&gt;&lt;div&gt;* В списке отображаются только активные объявления.&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Статусы объявлений:&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;* У объявления может быть один из трех статусов:&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;- Черновик — объявление создано, но не опубликовано.&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;- Активное — объявление опубликовано и доступно другим пользователям.&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;- Снятое с публикации — срок публикации истек или пользователь снял объявление вручную.&lt;/div&gt;&lt;div&gt;* Активное объявление автоматически снимается с публикации через 30 дней (или другой заданный срок). Для повторной публикации пользователь должен вручную его активировать.&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Создание объявлений:&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;* Для создания объявления пользователь должен зарегистрироваться.&lt;/span&gt;&lt;/div&gt;&lt;div&gt;* Каждое новое объявление начинается со статуса &quot;Черновик&quot;.&lt;/div&gt;&lt;div&gt;* Пользователь может иметь неограниченное количество черновиков, но активных объявлений может быть не более N (настраивается).&lt;/div&gt;&lt;div&gt;* Для публикации черновика пользователь отправляет запрос на модерацию.&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Модерация объявлений:&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;* Модераторы видят ленту объявлений, ожидающих проверки.&lt;/span&gt;&lt;/div&gt;&lt;div&gt;* Объявление может быть:&lt;/div&gt;&lt;div&gt;* Одобрено — переводится в статус &quot;Активное&quot;.&lt;/div&gt;&lt;div&gt;* Отклонено — возвращается в статус &quot;Черновик&quot; с возможностью добавить текстовый комментарий от модератора для пояснений.&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="20" y="-60" width="710" height="450" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-2" value="&lt;b&gt;API для пользователей&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;* Регистрация и авторизация пользователей:&amp;nbsp;POST /auth/register&lt;/div&gt;&lt;div&gt;* Возврат jwt: POST /auth/login&lt;/div&gt;&lt;div&gt;* Список категорий:&amp;nbsp;GET /categories&lt;/div&gt;&lt;div&gt;* Активные объявления: POST или GET /ads + пагинация + фильтрация по цене&lt;/div&gt;&lt;div&gt;* Создание объявления(черновика): POST /ads&lt;/div&gt;&lt;div&gt;* Редактирование объявления:&amp;nbsp;PUT /ads/{id}&lt;/div&gt;&lt;div&gt;* Отправляем на модерацию:&amp;nbsp;POST /ads/{id}/publish&lt;/div&gt;&lt;div&gt;* Удаляем:&amp;nbsp;DELETE /ads/{id}&lt;/div&gt;&lt;div&gt;* Список для модерации:&amp;nbsp;GET /moderation/ads&lt;/div&gt;&lt;div&gt;* Одобряем объявление:&amp;nbsp;POST /moderation/ads/{id}/approve&lt;/div&gt;&lt;div&gt;* Реджектим объявление:&amp;nbsp;POST /moderation/ads/{id}/reject&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry y="470" width="530" height="210" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="VUeWBQ15rTX2QOQqSJsO-4" target="VUeWBQ15rTX2QOQqSJsO-7" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" parent="1" source="VUeWBQ15rTX2QOQqSJsO-4" target="VUeWBQ15rTX2QOQqSJsO-32" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1050" y="90"/>
+                            <mxPoint x="1080" y="90"/>
+                            <mxPoint x="1080" y="210"/>
+                            <mxPoint x="1110" y="210"/>
+                            <mxPoint x="1110" y="240"/>
+                            <mxPoint x="1210" y="240"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-4" value="Пользователи" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="930" y="40" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-5" value="Категории" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="795" y="160" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="VUeWBQ15rTX2QOQqSJsO-6" target="VUeWBQ15rTX2QOQqSJsO-4" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="VUeWBQ15rTX2QOQqSJsO-6" target="VUeWBQ15rTX2QOQqSJsO-5" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="VUeWBQ15rTX2QOQqSJsO-6" target="VUeWBQ15rTX2QOQqSJsO-9" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1100" y="250"/>
+                            <mxPoint x="1100" y="190"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" parent="1" source="VUeWBQ15rTX2QOQqSJsO-6" target="VUeWBQ15rTX2QOQqSJsO-32" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1130" y="265"/>
+                            <mxPoint x="1130" y="325"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-6" value="Объявления" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="960" y="220" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-7" value="роли" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="1120" y="30" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-8" value="Модерация" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="795" y="-70" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-9" value="Статусы - перечисление" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="1130" y="160" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-10" value="Аутентификация" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="810" y="460" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-11" value="Кэш" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="670" y="570" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-12" value="CDN" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="810" y="570" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-13" value="БД" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="950" y="470" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-14" value="Хранение больших картинок" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="990" y="570" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-15" value="Шлюз, nginx" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="1090" y="490" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-16" value="Пользователи" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="400" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-17" value="Объявления" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="1200" y="430" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-18" value="Логи" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="1190" y="550" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-24" value="&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Пользователь&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Модератор&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="1230" y="40" width="160" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-25" value="&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Чернович&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Активное&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Снято с публикации&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;ul&gt;&lt;li&gt;На модерации&lt;/li&gt;&lt;li&gt;Одобрено&lt;/li&gt;&lt;/ul&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="1230" y="155" width="160" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-28" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="VUeWBQ15rTX2QOQqSJsO-26" target="VUeWBQ15rTX2QOQqSJsO-27" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-26" value="Чат" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+                    <mxGeometry x="900" y="710" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-27" value="&lt;ul&gt;&lt;li&gt;Только между зарегистрированными пользователями&lt;/li&gt;&lt;li&gt;Только в контексте объявления&lt;/li&gt;&lt;li&gt;Инициатор всегда покупатель&lt;/li&gt;&lt;li&gt;Ограничимся передачей текста&lt;/li&gt;&lt;/ul&gt;" style="whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;verticalAlign=top;align=left;" parent="1" vertex="1">
+                    <mxGeometry x="1100" y="720" width="390" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-29" value="Хранение мелких картинок" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="1110" y="620" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-30" value="&lt;ul&gt;&lt;li&gt;Город&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Категория&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Цена&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;Заголовок&lt;/li&gt;&lt;li&gt;Описание&lt;/li&gt;&lt;li&gt;Картинки(макс 5штук)&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="870" y="250" width="150" height="170" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-31" value="&lt;ul&gt;&lt;li&gt;Чек текста&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Чек категории&lt;/span&gt;&lt;/li&gt;&lt;li&gt;Прочее&lt;/li&gt;&lt;/ul&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="910" y="-80" width="120" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-32" value="города" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="1200" y="310" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="VUeWBQ15rTX2QOQqSJsO-36" value="Система избранного(типа кто-то лайкнул объявление)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+                    <mxGeometry x="910" y="820" width="120" height="80" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

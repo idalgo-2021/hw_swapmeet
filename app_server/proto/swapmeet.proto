@@ -1,0 +1,119 @@
+syntax = "proto3";
+
+option go_package = "pkg/api/swapmeet_grpc";
+
+package api;
+
+service SwapmeetService {
+    rpc GetCategories (GetCategoriesRequest) returns (GetCategoriesResponse); 
+    rpc CreateCategory (CreateCategoryRequest) returns (CreateCategoryResponse); 
+    rpc GetPublishedAdvertisements (GetPublishedAdvertisementsRequest) returns (GetPublishedAdvertisementsResponse); 
+    rpc GetPublishedAdvertisementByID (GetPublishedAdvertisementByIDRequest) returns (GetPublishedAdvertisementByIDResponse);
+
+    rpc GetUserAdvertisements (GetUserAdvertisementsRequest) returns (GetUserAdvertisementsResponse);
+    rpc CreateAdvertisement (CreateAdvertisementRequest) returns (CreateAdvertisementResponse);
+    rpc UpdateAdvertisement (UpdateAdvertisementRequest) returns (UpdateAdvertisementResponse);
+}
+
+message GetCategoriesRequest {}
+
+message GetCategoriesResponse {
+    repeated Category categories = 1;
+}
+
+message Category {
+    string id = 1;
+    string name = 2;
+    string parent_id = 3;
+}
+
+message CreateCategoryRequest {
+    string name = 1;
+    string parent_id = 2;
+}
+
+message CreateCategoryResponse {
+    Category category = 1;
+}
+
+message GetPublishedAdvertisementsRequest {
+    repeated string category_ids = 1;
+}
+
+message GetPublishedAdvertisementsResponse {
+    repeated PublishedAdvertisement advertisements = 1;
+}
+
+message PublishedAdvertisement {
+    string id = 1;
+    string user_id = 2;
+    string user_name = 3; 
+    string status_id = 4;
+    string status_name = 5; 
+    string category_id = 6;
+    string category_name = 7; 
+    string created_at = 8; 
+    string last_upd = 9; 
+    string title = 10; 
+    string description = 11; 
+    string price = 12; 
+    string contact_info = 13; 
+}
+
+message GetPublishedAdvertisementByIDRequest {
+    string id = 1;
+}
+
+message GetPublishedAdvertisementByIDResponse {
+    PublishedAdvertisement advertisement = 1;
+}
+
+
+
+message GetUserAdvertisementsRequest {}
+
+message GetUserAdvertisementsResponse {
+    repeated UserAdvertisement advertisements = 1;
+}
+
+message UserAdvertisement {
+    string id = 1;
+    string user_id = 2;
+    string user_name = 3; 
+    string status_id = 4;
+    string status_name = 5; 
+    string category_id = 6;
+    string category_name = 7; 
+    string created_at = 8; 
+    string last_upd = 9; 
+    string title = 10; 
+    string description = 11; 
+    string price = 12; 
+    string contact_info = 13; 
+}
+
+message CreateAdvertisementRequest {
+    string category_id = 1;
+    string title = 2;
+    string description = 3;
+    string price = 4;
+    string contact_info = 5;
+}
+
+message CreateAdvertisementResponse {
+    UserAdvertisement advertisement = 1;
+}
+
+message UpdateAdvertisementRequest {
+    string advertisement_id = 1;
+    string title = 2;
+    string description = 3;
+    string price = 4;
+    string contact_info = 5;
+}
+
+message UpdateAdvertisementResponse {
+    UserAdvertisement advertisement = 1;
+}
+
+

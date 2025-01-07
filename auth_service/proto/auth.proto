@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+option go_package = "pkg/api/auth_grpc";
+
+package api;
+
+service AuthService {
+    rpc GenerateToken (GenerateTokenRequest) returns (GenerateTokenResponse);
+    rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
+    rpc RefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse);
+    rpc RegisterUser (RegisterUserRequest) returns (RegisterUserResponse);
+    // rpc RevokeToken (RevokeTokenRequest) returns (RevokeTokenResponse); 
+}
+
+message GenerateTokenRequest {
+    string username = 1;  // Имя пользователя
+    string password = 2;  // Пароль пользователя
+}
+
+message GenerateTokenResponse {
+    string access_token = 1;   // JWT токен доступа
+    string refresh_token = 2;  // Refresh токен
+}
+
+message ValidateTokenRequest {
+    string access_token = 1;  // Проверяемый токен
+}
+
+message ValidateTokenResponse {
+    string user_id = 1;       // Идентификатор пользователя, если токен валиден
+}
+
+message RefreshTokenRequest {
+    string refresh_token = 1;  // Refresh токен для обновления
+}
+
+message RefreshTokenResponse {
+    string access_token = 1;   // Новый JWT токен доступа
+    string refresh_token = 2;  // Новый Refresh токен
+}
+
+message RegisterUserRequest {
+    string username = 1;  // Имя пользователя
+    string password = 2;  // Пароль пользователя
+    string email = 3;     // Электронная почта (по желанию)
+}
+
+message RegisterUserResponse {
+    string user_id = 1;       // Идентификатор пользователя
+}
+
+// // Запрос на аннулирование токена
+// message RevokeTokenRequest {
+//     string access_token = 1;  // Токен, который нужно аннулировать
+// }
+//
+// // Ответ на запрос аннулирования токена
+// message RevokeTokenResponse {
+//     bool success = 1;         // Успех операции
+// }

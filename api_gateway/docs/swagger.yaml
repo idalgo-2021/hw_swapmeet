@@ -1,0 +1,545 @@
+basePath: /
+definitions:
+  auth_grpc.GenerateTokenResponse:
+    properties:
+      access_token:
+        description: JWT токен доступа
+        type: string
+      refresh_token:
+        description: Refresh токен
+        type: string
+    type: object
+  auth_grpc.RefreshTokenResponse:
+    properties:
+      access_token:
+        description: Новый JWT токен доступа
+        type: string
+      refresh_token:
+        description: Новый Refresh токен
+        type: string
+    type: object
+  auth_grpc.RegisterUserResponse:
+    properties:
+      user_id:
+        description: Идентификатор пользователя
+        type: string
+    type: object
+  auth_grpc.ValidateTokenResponse:
+    properties:
+      user_id:
+        description: Идентификатор пользователя, если токен валиден
+        type: string
+    type: object
+  models.CreateAdvertisementRequest:
+    properties:
+      category_id:
+        type: string
+      contact_info:
+        type: string
+      description:
+        type: string
+      price:
+        type: string
+      title:
+        type: string
+    type: object
+  models.CreateCategoryRequest:
+    properties:
+      name:
+        type: string
+      parent_id:
+        type: string
+    type: object
+  models.GenerateTokenRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  models.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    type: object
+  models.RegisterUserRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  models.UpdateAdvertisementRequest:
+    properties:
+      advertisement_id:
+        type: string
+      contact_info:
+        type: string
+      description:
+        type: string
+      price:
+        type: string
+      title:
+        type: string
+    type: object
+  swapmeet_grpc.Category:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      parent_id:
+        type: string
+    type: object
+  swapmeet_grpc.CreateAdvertisementResponse:
+    properties:
+      advertisement:
+        $ref: '#/definitions/swapmeet_grpc.UserAdvertisement'
+    type: object
+  swapmeet_grpc.CreateCategoryResponse:
+    properties:
+      category:
+        $ref: '#/definitions/swapmeet_grpc.Category'
+    type: object
+  swapmeet_grpc.PublishedAdvertisement:
+    properties:
+      category_id:
+        type: string
+      category_name:
+        type: string
+      contact_info:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      last_upd:
+        type: string
+      price:
+        type: string
+      status_id:
+        type: string
+      status_name:
+        type: string
+      title:
+        type: string
+      user_id:
+        type: string
+      user_name:
+        type: string
+    type: object
+  swapmeet_grpc.UpdateAdvertisementResponse:
+    properties:
+      advertisement:
+        $ref: '#/definitions/swapmeet_grpc.UserAdvertisement'
+    type: object
+  swapmeet_grpc.UserAdvertisement:
+    properties:
+      category_id:
+        type: string
+      category_name:
+        type: string
+      contact_info:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      last_upd:
+        type: string
+      price:
+        type: string
+      status_id:
+        type: string
+      status_name:
+        type: string
+      title:
+        type: string
+      user_id:
+        type: string
+      user_name:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Gateway HTTP API Swapmeet
+  title: Gateway HTTP API Swapmeet
+  version: "1.0"
+paths:
+  /advertisement/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a published advertisement by its ID
+      parameters:
+      - description: Bearer Access Token
+        in: header
+        name: Authorization
+        type: string
+      - description: Advertisement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Advertisement details
+          schema:
+            $ref: '#/definitions/swapmeet_grpc.PublishedAdvertisement'
+        "400":
+          description: Invalid ID
+          schema:
+            type: string
+        "404":
+          description: Advertisement not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get published advertisement by ID
+      tags:
+      - Advertisements
+  /advertisements:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of published advertisements
+      parameters:
+      - description: Bearer Access Token
+        in: header
+        name: Authorization
+        type: string
+      - collectionFormat: csv
+        description: Category IDs to filter the advertisements (e.g., ?cat=3&cat=15)
+        in: query
+        items:
+          type: integer
+        name: cat
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of published advertisements
+          schema:
+            items:
+              $ref: '#/definitions/swapmeet_grpc.PublishedAdvertisement'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get published advertisements
+      tags:
+      - Advertisements
+    post:
+      consumes:
+      - application/json
+      description: Create a new advertisement (requires authentication)
+      parameters:
+      - description: Bearer Access Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Create Advertisement Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateAdvertisementRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Advertisement created successfully
+          schema:
+            $ref: '#/definitions/swapmeet_grpc.CreateAdvertisementResponse'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Create Advertisement
+      tags:
+      - Advertisements
+    put:
+      consumes:
+      - application/json
+      description: Update an existing advertisement (requires authentication)
+      parameters:
+      - description: Bearer Access Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Update Advertisement Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateAdvertisementRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Advertisement updated successfully
+          schema:
+            $ref: '#/definitions/swapmeet_grpc.UpdateAdvertisementResponse'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Advertisement not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Update Advertisement
+      tags:
+      - Advertisements
+  /advertisements/user:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of advertisements created by the authenticated
+        user
+      parameters:
+      - description: Bearer Access Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of user advertisements
+          schema:
+            items:
+              $ref: '#/definitions/swapmeet_grpc.UserAdvertisement'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get User Advertisements
+      tags:
+      - Advertisements
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refresh a JWT token using a refresh token
+      parameters:
+      - description: Refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth_grpc.RefreshTokenResponse'
+        "400":
+          description: Invalid request format
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Refresh an existing JWT token
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a user with username, password, and email
+      parameters:
+      - description: User details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth_grpc.RegisterUserResponse'
+        "400":
+          description: Invalid request format
+          schema:
+            type: string
+        "409":
+          description: User already exists
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Register a new user
+      tags:
+      - auth
+  /auth/token:
+    post:
+      consumes:
+      - application/json
+      description: Generates a new JWT access token for authentication.
+      parameters:
+      - description: Login details
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.GenerateTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth_grpc.GenerateTokenResponse'
+        "400":
+          description: Invalid request format
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Generate a new access token
+      tags:
+      - auth
+  /auth/validate:
+    post:
+      consumes:
+      - application/json
+      description: Validates the provided JWT access token.
+      parameters:
+      - description: Bearer Access Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth_grpc.ValidateTokenResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Validate an access token
+      tags:
+      - auth
+  /categories:
+    get:
+      description: Retrieve a list of available advertisement categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of categories
+          schema:
+            items:
+              $ref: '#/definitions/swapmeet_grpc.Category'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get categories
+      tags:
+      - Categories
+    post:
+      consumes:
+      - application/json
+      description: Create a new advertisement category (requires authentication)
+      parameters:
+      - description: Bearer Access Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Create Category Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Category created successfully
+          schema:
+            $ref: '#/definitions/swapmeet_grpc.CreateCategoryResponse'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Create category
+      tags:
+      - Categories
+swagger: "2.0"
