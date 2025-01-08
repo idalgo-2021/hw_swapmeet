@@ -14,8 +14,8 @@ type SwapmeetRepo interface {
 	GetCategories(ctx context.Context) ([]models.Category, error)                                           // for all
 	CreateCategory(ctx context.Context, userID string, name string, parentID int) (*models.Category, error) // for admins and moderators only
 
-	GetPublishedAdvertisements(ctx context.Context, categoryIDs []string) ([]models.PublishedAdvertisement, error)     // for all
-	GetPublishedAdvertisementByID(ctx context.Context, advertisementID string) (*models.PublishedAdvertisement, error) // for all
+	GetPublishedAdvertisements(ctx context.Context, categoryIDs []string) ([]models.UserAdvertisement, error)     // for all
+	GetPublishedAdvertisementByID(ctx context.Context, advertisementID string) (*models.UserAdvertisement, error) // for all
 
 	GetUserAdvertisements(ctx context.Context, userID string) ([]models.UserAdvertisement, error)                                                       // for authorized users
 	CreateAdvertisement(ctx context.Context, userID, categoryID, title, description, price, contactInfo string) (*models.UserAdvertisement, error)      // for authorized users
@@ -23,6 +23,11 @@ type SwapmeetRepo interface {
 	SetModerationStatusForAdvertisement(ctx context.Context, userID, advertisementID string) (*models.UserAdvertisement, error)                         // for authorized users
 
 	EnsureUserExists(ctx context.Context, userID, userName string) error
+
+	GetAdvertisements(ctx context.Context, statuses, categoryIDs []string) ([]models.UserAdvertisement, error) // for admins and moderators only
+	PublishAdvertisement(ctx context.Context, advertisementID string) (*models.UserAdvertisement, error)       // for admins and moderators only
+	ReturnAdvertisementToDraft(ctx context.Context, advertisementID string) (*models.UserAdvertisement, error) // for admins and moderators only
+
 }
 
 type SwapmeetService struct {
@@ -94,7 +99,7 @@ func (s *SwapmeetService) CreateCategory(ctx context.Context, name string, paren
 
 ////
 
-func (s *SwapmeetService) GetPublishedAdvertisements(ctx context.Context, categoryIDs []string) ([]models.PublishedAdvertisement, error) {
+func (s *SwapmeetService) GetPublishedAdvertisements(ctx context.Context, categoryIDs []string) ([]models.UserAdvertisement, error) {
 
 	_, err := s.authenticate(ctx)
 	isAuthed := err == nil
@@ -112,7 +117,7 @@ func (s *SwapmeetService) GetPublishedAdvertisements(ctx context.Context, catego
 	return advertisements, nil
 }
 
-func (s *SwapmeetService) GetPublishedAdvertisementByID(ctx context.Context, advertisementID string) (*models.PublishedAdvertisement, error) {
+func (s *SwapmeetService) GetPublishedAdvertisementByID(ctx context.Context, advertisementID string) (*models.UserAdvertisement, error) {
 
 	_, err := s.authenticate(ctx)
 	isAuthed := err == nil
@@ -130,7 +135,7 @@ func (s *SwapmeetService) GetPublishedAdvertisementByID(ctx context.Context, adv
 	return advertisement, nil
 }
 
-func maskContactInfo(ads []models.PublishedAdvertisement) {
+func maskContactInfo(ads []models.UserAdvertisement) {
 	for i := range ads {
 		ads[i].ContactInfo = "Для просмотра необходимо авторизоваться"
 	}
@@ -199,4 +204,56 @@ func (s *SwapmeetService) SubmitAdvertisementForModeration(ctx context.Context, 
 	}
 
 	return s.Repo.SetModerationStatusForAdvertisement(ctx, userID, advertisementID)
+}
+
+////
+
+func (s *SwapmeetService) GetModerationAdvertisements(ctx context.Context, statuses, categoryIDs []string) ([]models.UserAdvertisement, error) {
+	claims, err := s.authenticate(ctx)
+	if err != nil {
+		s.logger.Info(ctx, fmt.Sprintf("failed to authenticate token: %v", err))
+		return nil, err
+	}
+
+	if claims.Role != "admin" && claims.Role != "moderator" {
+		s.logger.Info(ctx, fmt.Sprintf("permission denied: insufficient role"))
+		return nil, fmt.Errorf("permission denied: insufficient role")
+	}
+
+	advertisements, err := s.Repo.GetAdvertisements(ctx, statuses, categoryIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	return advertisements, nil
+}
+
+func (s *SwapmeetService) PublishAdvertisement(ctx context.Context, advertisementID string) (*models.UserAdvertisement, error) {
+	claims, err := s.authenticate(ctx)
+	if err != nil {
+		s.logger.Info(ctx, fmt.Sprintf("failed to authenticate token: %v", err))
+		return nil, err
+	}
+
+	if claims.Role != "admin" && claims.Role != "moderator" {
+		s.logger.Info(ctx, fmt.Sprintf("permission denied: insufficient role"))
+		return nil, fmt.Errorf("permission denied: insufficient role")
+	}
+
+	return s.Repo.PublishAdvertisement(ctx, advertisementID)
+}
+
+func (s *SwapmeetService) ReturnAdvertisementToDraft(ctx context.Context, advertisementID string) (*models.UserAdvertisement, error) {
+	claims, err := s.authenticate(ctx)
+	if err != nil {
+		s.logger.Info(ctx, fmt.Sprintf("failed to authenticate token: %v", err))
+		return nil, err
+	}
+
+	if claims.Role != "admin" && claims.Role != "moderator" {
+		s.logger.Info(ctx, fmt.Sprintf("permission denied: insufficient role"))
+		return nil, fmt.Errorf("permission denied: insufficient role")
+	}
+
+	return s.Repo.ReturnAdvertisementToDraft(ctx, advertisementID)
 }

@@ -103,34 +103,41 @@ definitions:
       category:
         $ref: '#/definitions/swapmeet_grpc.Category'
     type: object
-  swapmeet_grpc.PublishedAdvertisement:
+  swapmeet_grpc.GetModerationAdvertisementsResponse:
     properties:
-      category_id:
-        type: string
-      category_name:
-        type: string
-      contact_info:
-        type: string
-      created_at:
-        type: string
-      description:
-        type: string
-      id:
-        type: string
-      last_upd:
-        type: string
-      price:
-        type: string
-      status_id:
-        type: string
-      status_name:
-        type: string
-      title:
-        type: string
-      user_id:
-        type: string
-      user_name:
-        type: string
+      advertisements:
+        items:
+          $ref: '#/definitions/swapmeet_grpc.UserAdvertisement'
+        type: array
+    type: object
+  swapmeet_grpc.GetPublishedAdvertisementByIDResponse:
+    properties:
+      advertisement:
+        $ref: '#/definitions/swapmeet_grpc.UserAdvertisement'
+    type: object
+  swapmeet_grpc.GetPublishedAdvertisementsResponse:
+    properties:
+      advertisements:
+        items:
+          $ref: '#/definitions/swapmeet_grpc.UserAdvertisement'
+        type: array
+    type: object
+  swapmeet_grpc.GetUserAdvertisementsResponse:
+    properties:
+      advertisements:
+        items:
+          $ref: '#/definitions/swapmeet_grpc.UserAdvertisement'
+        type: array
+    type: object
+  swapmeet_grpc.PublishAdvertisementResponse:
+    properties:
+      advertisement:
+        $ref: '#/definitions/swapmeet_grpc.UserAdvertisement'
+    type: object
+  swapmeet_grpc.ReturnAdvertisementToDraftResponse:
+    properties:
+      advertisement:
+        $ref: '#/definitions/swapmeet_grpc.UserAdvertisement'
     type: object
   swapmeet_grpc.SubmitAdvertisementForModerationResponse:
     properties:
@@ -198,7 +205,7 @@ paths:
         "200":
           description: Advertisement details
           schema:
-            $ref: '#/definitions/swapmeet_grpc.PublishedAdvertisement'
+            $ref: '#/definitions/swapmeet_grpc.GetPublishedAdvertisementByIDResponse'
         "400":
           description: Invalid ID
           schema:
@@ -214,7 +221,83 @@ paths:
       summary: Get published advertisement by ID
       tags:
       - Advertisements
-  /advertisement/moderation/{id}:
+  /advertisement/{id}/publish:
+    put:
+      consumes:
+      - application/json
+      description: Publish advertisement for a given ID by moderator
+      parameters:
+      - description: Bearer Access Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Advertisement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swapmeet_grpc.PublishAdvertisementResponse'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "404":
+          description: Advertisement not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Publish advertisement
+      tags:
+      - advertisement
+  /advertisement/{id}/return-to-draft:
+    put:
+      consumes:
+      - application/json
+      description: Return advertisement back to draft for a given ID by moderator
+      parameters:
+      - description: Bearer Access Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Advertisement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swapmeet_grpc.ReturnAdvertisementToDraftResponse'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "404":
+          description: Advertisement not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Return advertisement to draft
+      tags:
+      - advertisement
+  /advertisement/{id}/submit-for-moderation:
     put:
       consumes:
       - application/json
@@ -280,7 +363,7 @@ paths:
           description: List of published advertisements
           schema:
             items:
-              $ref: '#/definitions/swapmeet_grpc.PublishedAdvertisement'
+              $ref: '#/definitions/swapmeet_grpc.GetPublishedAdvertisementsResponse'
             type: array
         "500":
           description: Internal server error
@@ -369,6 +452,48 @@ paths:
       summary: Update advertisement
       tags:
       - Advertisements
+  /advertisements/moderation:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of advertisements in moderation status, filtered
+        by optional statuses and category IDs
+      parameters:
+      - description: Bearer Access Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - collectionFormat: csv
+        description: Statuses to filter advertisements (e.g., ?status=moderation&status=published)
+        in: query
+        items:
+          type: string
+        name: status
+        type: array
+      - collectionFormat: csv
+        description: Category IDs to filter advertisements (e.g., ?cat=3&cat=15)
+        in: query
+        items:
+          type: string
+        name: cat
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of advertisements for moderation
+          schema:
+            items:
+              $ref: '#/definitions/swapmeet_grpc.GetModerationAdvertisementsResponse'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get advertisements for moderation
+      tags:
+      - Advertisements moderation
   /advertisements/user:
     get:
       consumes:
@@ -388,7 +513,7 @@ paths:
           description: List of user advertisements
           schema:
             items:
-              $ref: '#/definitions/swapmeet_grpc.UserAdvertisement'
+              $ref: '#/definitions/swapmeet_grpc.GetUserAdvertisementsResponse'
             type: array
         "401":
           description: Unauthorized

@@ -108,7 +108,7 @@ func (h *SwapmeetHandlers) CreateCategory(w http.ResponseWriter, r *http.Request
 // @Produce json
 // @Param Authorization header string false "Bearer Access Token"
 // @Param cat query []int false "Category IDs to filter the advertisements (e.g., ?cat=3&cat=15)" style(form) explode(true)
-// @Success 200 {array} pb.PublishedAdvertisement "List of published advertisements"
+// @Success 200 {array} pb.GetPublishedAdvertisementsResponse "List of published advertisements"
 // @Failure 500 {string} string "Internal server error"
 // @Router /advertisements [get]
 func (h *SwapmeetHandlers) GetPublishedAdvertisements(w http.ResponseWriter, r *http.Request) {
@@ -134,7 +134,7 @@ func (h *SwapmeetHandlers) GetPublishedAdvertisements(w http.ResponseWriter, r *
 // @Produce json
 // @Param Authorization header string false "Bearer Access Token"
 // @Param id path string true "Advertisement ID"
-// @Success 200 {object} pb.PublishedAdvertisement "Advertisement details"
+// @Success 200 {object} pb.GetPublishedAdvertisementByIDResponse "Advertisement details"
 // @Failure 400 {string} string "Invalid ID"
 // @Failure 404 {string} string "Advertisement not found"
 // @Failure 500 {string} string "Internal server error"
@@ -167,7 +167,7 @@ func (h *SwapmeetHandlers) GetPublishedAdvertisementByID(w http.ResponseWriter, 
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer Access Token"
-// @Success 200 {array} pb.UserAdvertisement "List of user advertisements"
+// @Success 200 {array} pb.GetUserAdvertisementsResponse "List of user advertisements"
 // @Failure 401 {string} string "Unauthorized"
 // @Failure 500 {string} string "Internal server error"
 // @Router /advertisements/user [get]
@@ -274,7 +274,7 @@ func (h *SwapmeetHandlers) UpdateAdvertisement(w http.ResponseWriter, r *http.Re
 // @Failure 401 {string} string "Unauthorized"
 // @Failure 404 {string} string "Advertisement not found"
 // @Failure 500 {string} string "Internal server error"
-// @Router /advertisement/moderation/{id} [put]
+// @Router /advertisement/{id}/submit-for-moderation [put]
 func (h *SwapmeetHandlers) SubmitAdvertisementForModeration(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	adID, ok := vars["id"]
@@ -289,6 +289,104 @@ func (h *SwapmeetHandlers) SubmitAdvertisementForModeration(w http.ResponseWrite
 
 	ctx := h.enrichContextWithAuth(r.Context(), r)
 	resp, err := h.client.SubmitAdvertisementForModeration(ctx, grpcReq)
+	if err != nil {
+		h.handleGRPCError(r.Context(), err, w)
+		return
+	}
+
+	h.writeJSONResponse(w, r, http.StatusOK, resp)
+}
+
+// @Summary Get advertisements for moderation
+// @Description Retrieve a list of advertisements in moderation status, filtered by optional statuses and category IDs
+// @Tags Advertisements moderation
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer Access Token"
+// @Param status query []string false "Statuses to filter advertisements (e.g., ?status=moderation&status=published)" style(form) explode(true)
+// @Param cat query []string false "Category IDs to filter advertisements (e.g., ?cat=3&cat=15)" style(form) explode(true)
+// @Success 200 {array} pb.GetModerationAdvertisementsResponse "List of advertisements for moderation"
+// @Failure 500 {string} string "Internal server error"
+// @Router /advertisements/moderation [get]
+func (h *SwapmeetHandlers) GetModerationAdvertisements(w http.ResponseWriter, r *http.Request) {
+	statuses := r.URL.Query()["status"]
+	categoryIDs := r.URL.Query()["cat"]
+
+	grpcReq := &pb.GetModerationAdvertisementsRequest{
+		Statuses:    statuses,
+		CategoryIds: categoryIDs,
+	}
+
+	ctx := h.enrichContextWithAuth(r.Context(), r)
+	resp, err := h.client.GetModerationAdvertisements(ctx, grpcReq)
+	if err != nil {
+		h.handleGRPCError(r.Context(), err, w)
+		return
+	}
+
+	h.writeJSONResponse(w, r, http.StatusOK, resp)
+}
+
+// @Summary Publish advertisement
+// @Description Publish advertisement for a given ID by moderator
+// @Tags advertisement
+// @Accept  json
+// @Produce  json
+// @Param Authorization header string true "Bearer Access Token"
+// @Param id path string true "Advertisement ID"
+// @Success 200 {object} pb.PublishAdvertisementResponse
+// @Failure 400 {object} string"Invalid request"
+// @Failure 404 {object} string "Advertisement not found"
+// @Failure 500 {object} string "Internal server error"
+// @Router /advertisement/{id}/publish [put]
+func (h *SwapmeetHandlers) PublishAdvertisement(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	adID, ok := vars["id"]
+	if !ok || adID == "" {
+		http.Error(w, "Missing 'id' parameter in route", http.StatusBadRequest)
+		return
+	}
+
+	grpcReq := &pb.PublishAdvertisementRequest{
+		AdvertisementId: adID,
+	}
+
+	ctx := h.enrichContextWithAuth(r.Context(), r)
+	resp, err := h.client.PublishAdvertisement(ctx, grpcReq)
+	if err != nil {
+		h.handleGRPCError(r.Context(), err, w)
+		return
+	}
+
+	h.writeJSONResponse(w, r, http.StatusOK, resp)
+}
+
+// @Summary Return advertisement to draft
+// @Description Return advertisement back to draft for a given ID by moderator
+// @Tags advertisement
+// @Accept  json
+// @Produce  json
+// @Param Authorization header string true "Bearer Access Token"
+// @Param id path string true "Advertisement ID"
+// @Success 200 {object} pb.ReturnAdvertisementToDraftResponse
+// @Failure 400 {object} string "Invalid request"
+// @Failure 404 {object} string "Advertisement not found"
+// @Failure 500 {object} string "Internal server error"
+// @Router /advertisement/{id}/return-to-draft [put]
+func (h *SwapmeetHandlers) ReturnAdvertisementToDraft(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	adID, ok := vars["id"]
+	if !ok || adID == "" {
+		http.Error(w, "Missing 'id' parameter in route", http.StatusBadRequest)
+		return
+	}
+
+	grpcReq := &pb.ReturnAdvertisementToDraftRequest{
+		AdvertisementId: adID,
+	}
+
+	ctx := h.enrichContextWithAuth(r.Context(), r)
+	resp, err := h.client.ReturnAdvertisementToDraft(ctx, grpcReq)
 	if err != nil {
 		h.handleGRPCError(r.Context(), err, w)
 		return

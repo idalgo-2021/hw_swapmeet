@@ -11,7 +11,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func (r *DBSwapmeetRepo) GetPublishedAdvertisements(ctx context.Context, categoryIDs []string) ([]models.PublishedAdvertisement, error) {
+func (r *DBSwapmeetRepo) GetPublishedAdvertisements(ctx context.Context, categoryIDs []string) ([]models.UserAdvertisement, error) {
 
 	// FIXME: Переработать механизмы работы с кэшем объявлений
 	if len(categoryIDs) <= 0 {
@@ -31,7 +31,7 @@ func (r *DBSwapmeetRepo) GetPublishedAdvertisements(ctx context.Context, categor
 	return publishedAds, nil
 }
 
-func (r *DBSwapmeetRepo) getPublishedAdvertisementsFromCache(ctx context.Context) ([]models.PublishedAdvertisement, error) {
+func (r *DBSwapmeetRepo) getPublishedAdvertisementsFromCache(ctx context.Context) ([]models.UserAdvertisement, error) {
 	cachedAds, err := r.cache.Get(ctx, "publishedAds").Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
@@ -42,9 +42,9 @@ func (r *DBSwapmeetRepo) getPublishedAdvertisementsFromCache(ctx context.Context
 	return unmarshalAdvertisements(cachedAds)
 }
 
-func (r *DBSwapmeetRepo) getPublishedAdvertisementsFromDB(ctx context.Context, categoryIDs []string) ([]models.PublishedAdvertisement, error) {
+func (r *DBSwapmeetRepo) getPublishedAdvertisementsFromDB(ctx context.Context, categoryIDs []string) ([]models.UserAdvertisement, error) {
 
-	var advertisements []models.PublishedAdvertisement
+	var advertisements []models.UserAdvertisement
 
 	query := `
 		SELECT 
@@ -68,6 +68,7 @@ func (r *DBSwapmeetRepo) getPublishedAdvertisementsFromDB(ctx context.Context, c
 		WHERE s.status = 'published'
 	`
 	var args []interface{}
+
 	if len(categoryIDs) > 0 {
 		query += " AND a.category_id = ANY($1)"
 		args = append(args, pq.Array(categoryIDs))
@@ -88,7 +89,7 @@ func (r *DBSwapmeetRepo) getPublishedAdvertisementsFromDB(ctx context.Context, c
 
 ////
 
-func (r *DBSwapmeetRepo) setPublishedAdvertisementsToCache(ctx context.Context, advertisements []models.PublishedAdvertisement) error {
+func (r *DBSwapmeetRepo) setPublishedAdvertisementsToCache(ctx context.Context, advertisements []models.UserAdvertisement) error {
 	data, err := marshalAdvertisements(advertisements)
 	if err != nil {
 		return err
@@ -98,9 +99,9 @@ func (r *DBSwapmeetRepo) setPublishedAdvertisementsToCache(ctx context.Context, 
 
 ////
 
-func (r *DBSwapmeetRepo) GetPublishedAdvertisementByID(ctx context.Context, advertisementID string) (*models.PublishedAdvertisement, error) {
+func (r *DBSwapmeetRepo) GetPublishedAdvertisementByID(ctx context.Context, advertisementID string) (*models.UserAdvertisement, error) {
 
-	var advertisement models.PublishedAdvertisement
+	var advertisement models.UserAdvertisement
 
 	query := `
 		SELECT 
@@ -263,8 +264,6 @@ func (r *DBSwapmeetRepo) UpdateAdvertisement(ctx context.Context, userID, advert
 	return &advertisement, nil
 }
 
-////
-
 func (r *DBSwapmeetRepo) SetModerationStatusForAdvertisement(ctx context.Context, userID, advertisementID string) (*models.UserAdvertisement, error) {
 
 	var advertisement models.UserAdvertisement
@@ -286,6 +285,184 @@ func (r *DBSwapmeetRepo) SetModerationStatusForAdvertisement(ctx context.Context
 		&advertisement.Price,
 		&advertisement.ContactInfo,
 		&advertisement.StatusID,
+	)
+
+	if err != nil {
+		r.logger.Info(ctx, fmt.Sprintf("DB query error: %v", err))
+
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrAdvertisementNotFound
+		}
+		return nil, models.ErrDBQuery
+	}
+
+	return &advertisement, nil
+}
+
+////
+
+func (r *DBSwapmeetRepo) GetAdvertisements(ctx context.Context, statuses, categoryIDs []string) ([]models.UserAdvertisement, error) {
+
+	// FIXME: Использование кэша объявлений
+
+	advertisements, err := r.getAdvertisementsFromDB(ctx, statuses, categoryIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	// FIXME: Возможное обогащение кэша данными из БД
+
+	return advertisements, nil
+}
+
+func (r *DBSwapmeetRepo) getAdvertisementsFromDB(ctx context.Context, statuses, categoryIDs []string) ([]models.UserAdvertisement, error) {
+
+	var advertisements []models.UserAdvertisement
+
+	query := `
+		SELECT 
+   			a.id,  
+			a.user_id,
+   			u.name AS user_name, 
+			a.status_id, 
+   			s.status AS status_name,
+			a.category_id,
+			c.name AS category_name,  
+   			TO_CHAR(a.created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at,
+   			TO_CHAR(a.last_upd, 'YYYY-MM-DD HH24:MI:SS') AS last_upd,
+   			a.title, 
+   			a.description, 
+   			TO_CHAR(a.price, 'FM9999999.99') AS price,
+   			a.contact_info 
+		FROM advertisements a
+		JOIN users u ON a.user_id = u.base_id
+		JOIN statuses s ON a.status_id = s.id
+		JOIN categories c ON a.category_id = c.id
+		WHERE 1 = 1
+	`
+	var args []interface{}
+
+	argIndex := 1
+
+	if len(statuses) > 0 {
+		query += fmt.Sprintf(" AND s.status = ANY($%d)", argIndex)
+		args = append(args, pq.Array(statuses))
+		argIndex++
+	}
+
+	if len(categoryIDs) > 0 {
+		query += fmt.Sprintf(" AND a.category_id = ANY($%d)", argIndex)
+		args = append(args, pq.Array(categoryIDs))
+		argIndex++
+	}
+
+	err := r.db.Db.SelectContext(ctx, &advertisements, query, args...)
+	if err != nil {
+		r.logger.Info(ctx, fmt.Sprintf("DB query error: %v", err))
+
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrAdvertisementsNotFound
+		}
+		return nil, models.ErrDBQuery
+	}
+
+	return advertisements, nil
+}
+
+////
+
+func (r *DBSwapmeetRepo) PublishAdvertisement(ctx context.Context, advertisementID string) (*models.UserAdvertisement, error) {
+
+	var advertisement models.UserAdvertisement
+
+	query := `
+        UPDATE advertisements 
+        SET last_upd = NOW(), status_id = (
+            SELECT id FROM statuses WHERE status = 'published'
+        )
+        WHERE id = $1
+        RETURNING 
+            a.id,  
+            a.user_id,
+            u.name AS user_name, 
+            a.status_id, 
+            s.status AS status_name,
+            a.category_id,
+            c.name AS category_name,  
+            TO_CHAR(a.created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at,
+            TO_CHAR(a.last_upd, 'YYYY-MM-DD HH24:MI:SS') AS last_upd,
+            a.title, 
+            a.description, 
+            TO_CHAR(a.price, 'FM9999999.99') AS price,
+            a.contact_info
+    `
+	err := r.db.Db.QueryRowContext(ctx, query, advertisementID).Scan(
+		&advertisement.ID,
+		&advertisement.UserID,
+		&advertisement.UserName,
+		&advertisement.StatusID,
+		&advertisement.StatusName,
+		&advertisement.CategoryID,
+		&advertisement.CategoryName,
+		&advertisement.CreatedAt,
+		&advertisement.LastUpd,
+		&advertisement.Title,
+		&advertisement.Description,
+		&advertisement.Price,
+		&advertisement.ContactInfo,
+	)
+
+	if err != nil {
+		r.logger.Info(ctx, fmt.Sprintf("DB query error: %v", err))
+
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrAdvertisementNotFound
+		}
+		return nil, models.ErrDBQuery
+	}
+
+	return &advertisement, nil
+}
+
+func (r *DBSwapmeetRepo) ReturnAdvertisementToDraft(ctx context.Context, advertisementID string) (*models.UserAdvertisement, error) {
+
+	var advertisement models.UserAdvertisement
+
+	query := `
+        UPDATE advertisements 
+        SET last_upd = NOW(), status_id = (
+            SELECT id FROM statuses WHERE status = 'draft'
+        )
+        WHERE id = $1
+        RETURNING 
+            a.id,  
+            a.user_id,
+            u.name AS user_name, 
+            a.status_id, 
+            s.status AS status_name,
+            a.category_id,
+            c.name AS category_name,  
+            TO_CHAR(a.created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at,
+            TO_CHAR(a.last_upd, 'YYYY-MM-DD HH24:MI:SS') AS last_upd,
+            a.title, 
+            a.description, 
+            TO_CHAR(a.price, 'FM9999999.99') AS price,
+            a.contact_info
+    `
+	err := r.db.Db.QueryRowContext(ctx, query, advertisementID).Scan(
+		&advertisement.ID,
+		&advertisement.UserID,
+		&advertisement.UserName,
+		&advertisement.StatusID,
+		&advertisement.StatusName,
+		&advertisement.CategoryID,
+		&advertisement.CategoryName,
+		&advertisement.CreatedAt,
+		&advertisement.LastUpd,
+		&advertisement.Title,
+		&advertisement.Description,
+		&advertisement.Price,
+		&advertisement.ContactInfo,
 	)
 
 	if err != nil {

@@ -15,7 +15,177 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/advertisement/moderation/{id}": {
+        "/advertisement/{id}": {
+            "get": {
+                "description": "Retrieve a published advertisement by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Advertisements"
+                ],
+                "summary": "Get published advertisement by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Access Token",
+                        "name": "Authorization",
+                        "in": "header"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Advertisement ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Advertisement details",
+                        "schema": {
+                            "$ref": "#/definitions/swapmeet_grpc.GetPublishedAdvertisementByIDResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Advertisement not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/advertisement/{id}/publish": {
+            "put": {
+                "description": "Publish advertisement for a given ID by moderator",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "advertisement"
+                ],
+                "summary": "Publish advertisement",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Access Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Advertisement ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swapmeet_grpc.PublishAdvertisementResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Advertisement not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/advertisement/{id}/return-to-draft": {
+            "put": {
+                "description": "Return advertisement back to draft for a given ID by moderator",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "advertisement"
+                ],
+                "summary": "Return advertisement to draft",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Access Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Advertisement ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swapmeet_grpc.ReturnAdvertisementToDraftResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Advertisement not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/advertisement/{id}/submit-for-moderation": {
             "put": {
                 "description": "Move an advertisement to the \"moderation\" status (requires authentication)",
                 "consumes": [
@@ -78,62 +248,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/advertisement/{id}": {
-            "get": {
-                "description": "Retrieve a published advertisement by its ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Advertisements"
-                ],
-                "summary": "Get published advertisement by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer Access Token",
-                        "name": "Authorization",
-                        "in": "header"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Advertisement ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Advertisement details",
-                        "schema": {
-                            "$ref": "#/definitions/swapmeet_grpc.PublishedAdvertisement"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid ID",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "Advertisement not found",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/advertisements": {
             "get": {
                 "description": "Retrieve a list of published advertisements",
@@ -171,7 +285,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/swapmeet_grpc.PublishedAdvertisement"
+                                "$ref": "#/definitions/swapmeet_grpc.GetPublishedAdvertisementsResponse"
                             }
                         }
                     },
@@ -304,6 +418,67 @@ const docTemplate = `{
                 }
             }
         },
+        "/advertisements/moderation": {
+            "get": {
+                "description": "Retrieve a list of advertisements in moderation status, filtered by optional statuses and category IDs",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Advertisements moderation"
+                ],
+                "summary": "Get advertisements for moderation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Access Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Statuses to filter advertisements (e.g., ?status=moderation\u0026status=published)",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Category IDs to filter advertisements (e.g., ?cat=3\u0026cat=15)",
+                        "name": "cat",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of advertisements for moderation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/swapmeet_grpc.GetModerationAdvertisementsResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/advertisements/user": {
             "get": {
                 "description": "Retrieve a list of advertisements created by the authenticated user",
@@ -332,7 +507,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/swapmeet_grpc.UserAdvertisement"
+                                "$ref": "#/definitions/swapmeet_grpc.GetUserAdvertisementsResponse"
                             }
                         }
                     },
@@ -797,47 +972,60 @@ const docTemplate = `{
                 }
             }
         },
-        "swapmeet_grpc.PublishedAdvertisement": {
+        "swapmeet_grpc.GetModerationAdvertisementsResponse": {
             "type": "object",
             "properties": {
-                "category_id": {
-                    "type": "string"
-                },
-                "category_name": {
-                    "type": "string"
-                },
-                "contact_info": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "last_upd": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "string"
-                },
-                "status_id": {
-                    "type": "string"
-                },
-                "status_name": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                },
-                "user_name": {
-                    "type": "string"
+                "advertisements": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swapmeet_grpc.UserAdvertisement"
+                    }
+                }
+            }
+        },
+        "swapmeet_grpc.GetPublishedAdvertisementByIDResponse": {
+            "type": "object",
+            "properties": {
+                "advertisement": {
+                    "$ref": "#/definitions/swapmeet_grpc.UserAdvertisement"
+                }
+            }
+        },
+        "swapmeet_grpc.GetPublishedAdvertisementsResponse": {
+            "type": "object",
+            "properties": {
+                "advertisements": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swapmeet_grpc.UserAdvertisement"
+                    }
+                }
+            }
+        },
+        "swapmeet_grpc.GetUserAdvertisementsResponse": {
+            "type": "object",
+            "properties": {
+                "advertisements": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swapmeet_grpc.UserAdvertisement"
+                    }
+                }
+            }
+        },
+        "swapmeet_grpc.PublishAdvertisementResponse": {
+            "type": "object",
+            "properties": {
+                "advertisement": {
+                    "$ref": "#/definitions/swapmeet_grpc.UserAdvertisement"
+                }
+            }
+        },
+        "swapmeet_grpc.ReturnAdvertisementToDraftResponse": {
+            "type": "object",
+            "properties": {
+                "advertisement": {
+                    "$ref": "#/definitions/swapmeet_grpc.UserAdvertisement"
                 }
             }
         },

@@ -62,3 +62,15 @@ func (c *SwapmeetClient) UpdateAdvertisement(ctx context.Context, req *pb.Update
 func (c *SwapmeetClient) SubmitAdvertisementForModeration(ctx context.Context, req *pb.SubmitAdvertisementForModerationRequest) (*pb.SubmitAdvertisementForModerationResponse, error) {
 	return c.client.SubmitAdvertisementForModeration(ctx, req)
 }
+
+func (c *SwapmeetClient) GetModerationAdvertisements(ctx context.Context, req *pb.GetModerationAdvertisementsRequest) (*pb.GetModerationAdvertisementsResponse, error) {
+	return c.client.GetModerationAdvertisements(ctx, req)
+}
+
+func (c *SwapmeetClient) PublishAdvertisement(ctx context.Context, req *pb.PublishAdvertisementRequest) (*pb.PublishAdvertisementResponse, error) {
+	return c.client.PublishAdvertisement(ctx, req)
+}
+
+func (c *SwapmeetClient) ReturnAdvertisementToDraft(ctx context.Context, req *pb.ReturnAdvertisementToDraftRequest) (*pb.ReturnAdvertisementToDraftResponse, error) {
+	return c.client.ReturnAdvertisementToDraft(ctx, req)
+}

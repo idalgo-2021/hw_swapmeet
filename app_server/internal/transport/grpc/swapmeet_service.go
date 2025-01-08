@@ -16,14 +16,17 @@ type Service interface {
 	GetCategories(ctx context.Context) ([]models.Category, error)
 	CreateCategory(ctx context.Context, name string, parentID string) (*models.Category, error)
 
-	GetPublishedAdvertisements(ctx context.Context, categoryIDs []string) ([]models.PublishedAdvertisement, error)
-	GetPublishedAdvertisementByID(ctx context.Context, advertisementID string) (*models.PublishedAdvertisement, error)
+	GetPublishedAdvertisements(ctx context.Context, categoryIDs []string) ([]models.UserAdvertisement, error)
+	GetPublishedAdvertisementByID(ctx context.Context, advertisementID string) (*models.UserAdvertisement, error)
 
 	GetUserAdvertisements(ctx context.Context) ([]models.UserAdvertisement, error)
 	CreateAdvertisement(ctx context.Context, categoryID, title, description, price, contactInfo string) (*models.UserAdvertisement, error)
 	UpdateAdvertisement(ctx context.Context, advertisementID, title, description, price, contactInfo string) (*models.UserAdvertisement, error)
-
 	SubmitAdvertisementForModeration(ctx context.Context, advertisementID string) (*models.UserAdvertisement, error)
+
+	GetModerationAdvertisements(ctx context.Context, statuses, categoryIDs []string) ([]models.UserAdvertisement, error)
+	PublishAdvertisement(ctx context.Context, advertisementID string) (*models.UserAdvertisement, error)
+	ReturnAdvertisementToDraft(ctx context.Context, advertisementID string) (*models.UserAdvertisement, error)
 }
 
 type SwapmeetService struct {
@@ -77,7 +80,7 @@ func (s *SwapmeetService) CreateCategory(ctx context.Context, req *client.Create
 func (s *SwapmeetService) GetPublishedAdvertisements(ctx context.Context, req *client.GetPublishedAdvertisementsRequest) (*client.GetPublishedAdvertisementsResponse, error) {
 	ctx, err := extractAuthToken(ctx)
 	if err != nil {
-		// s.logger.Info(ctx, fmt.Sprintf("failed to extract auth token: %v", err))
+		s.logger.Info(ctx, fmt.Sprintf("failed to extract auth token: %v", err))
 	}
 
 	categoryIDs := req.CategoryIds
@@ -85,13 +88,13 @@ func (s *SwapmeetService) GetPublishedAdvertisements(ctx context.Context, req *c
 	advertisements, err := s.service.GetPublishedAdvertisements(ctx, categoryIDs)
 	if err != nil {
 		if errors.Is(err, models.ErrAdvertisementsNotFound) {
-			return &client.GetPublishedAdvertisementsResponse{Advertisements: []*client.PublishedAdvertisement{}}, nil
+			return &client.GetPublishedAdvertisementsResponse{Advertisements: []*client.UserAdvertisement{}}, nil
 		}
 		return nil, status.Errorf(codes.Internal, "failed to get advertisements: %v", err)
 	}
 
 	resp := &client.GetPublishedAdvertisementsResponse{
-		Advertisements: toGrpcPublishedAdvertisements(advertisements),
+		Advertisements: toGrpcUserAdvertisements(advertisements),
 	}
 
 	return resp, nil
@@ -100,7 +103,7 @@ func (s *SwapmeetService) GetPublishedAdvertisements(ctx context.Context, req *c
 func (s *SwapmeetService) GetPublishedAdvertisementByID(ctx context.Context, req *client.GetPublishedAdvertisementByIDRequest) (*client.GetPublishedAdvertisementByIDResponse, error) {
 	ctx, err := extractAuthToken(ctx)
 	if err != nil {
-		// s.logger.Info(ctx, fmt.Sprintf("failed to extract auth token: %v", err))
+		s.logger.Info(ctx, fmt.Sprintf("failed to extract auth token: %v", err))
 	}
 
 	advertisement, err := s.service.GetPublishedAdvertisementByID(ctx, req.Id)
@@ -112,7 +115,7 @@ func (s *SwapmeetService) GetPublishedAdvertisementByID(ctx context.Context, req
 	}
 
 	resp := &client.GetPublishedAdvertisementByIDResponse{
-		Advertisement: toGrpcPublishedAdvertisement(advertisement),
+		Advertisement: toGrpcUserAdvertisement(advertisement),
 	}
 
 	return resp, nil
@@ -135,7 +138,7 @@ func (s *SwapmeetService) GetUserAdvertisements(ctx context.Context, req *client
 	}
 
 	resp := &client.GetUserAdvertisementsResponse{
-		Advertisements: modelToGrpcUserAdvertisements(advertisements),
+		Advertisements: toGrpcUserAdvertisements(advertisements),
 	}
 
 	return resp, nil
@@ -153,7 +156,7 @@ func (s *SwapmeetService) CreateAdvertisement(ctx context.Context, req *client.C
 	}
 
 	resp := &client.CreateAdvertisementResponse{
-		Advertisement: modelToGrpcUserAdvertisement(advertisement),
+		Advertisement: toGrpcUserAdvertisement(advertisement),
 	}
 
 	return resp, nil
@@ -174,13 +177,11 @@ func (s *SwapmeetService) UpdateAdvertisement(ctx context.Context, req *client.U
 	}
 
 	resp := &client.UpdateAdvertisementResponse{
-		Advertisement: modelToGrpcUserAdvertisement(advertisement),
+		Advertisement: toGrpcUserAdvertisement(advertisement),
 	}
 
 	return resp, nil
 }
-
-//////
 
 func (s *SwapmeetService) SubmitAdvertisementForModeration(ctx context.Context, req *client.SubmitAdvertisementForModerationRequest) (*client.SubmitAdvertisementForModerationResponse, error) {
 	ctx, err := extractAuthToken(ctx)
@@ -197,7 +198,75 @@ func (s *SwapmeetService) SubmitAdvertisementForModeration(ctx context.Context, 
 	}
 
 	resp := &client.SubmitAdvertisementForModerationResponse{
-		Advertisement: modelToGrpcUserAdvertisement(advertisement),
+		Advertisement: toGrpcUserAdvertisement(advertisement),
+	}
+
+	return resp, nil
+}
+
+////
+
+func (s *SwapmeetService) GetModerationAdvertisements(ctx context.Context, req *client.GetModerationAdvertisementsRequest) (*client.GetModerationAdvertisementsResponse, error) {
+	ctx, err := extractAuthToken(ctx)
+	if err != nil {
+		s.logger.Info(ctx, fmt.Sprintf("failed to extract auth token: %v", err))
+	}
+
+	statuses := req.Statuses
+	categoryIDs := req.CategoryIds
+
+	advertisements, err := s.service.GetModerationAdvertisements(ctx, statuses, categoryIDs)
+	if err != nil {
+		if errors.Is(err, models.ErrAdvertisementNotFound) {
+			return nil, status.Errorf(codes.NotFound, "could not fetch advertisement: %v", err)
+		}
+		return nil, status.Errorf(codes.Internal, "failed to get advertisement for moderation: %v", err)
+	}
+
+	resp := &client.GetModerationAdvertisementsResponse{
+		Advertisements: toGrpcUserAdvertisements(advertisements),
+	}
+
+	return resp, nil
+}
+
+func (s *SwapmeetService) PublishAdvertisement(ctx context.Context, req *client.PublishAdvertisementRequest) (*client.PublishAdvertisementResponse, error) {
+	ctx, err := extractAuthToken(ctx)
+	if err != nil {
+		s.logger.Info(ctx, fmt.Sprintf("failed to extract auth token: %v", err))
+	}
+
+	advertisement, err := s.service.PublishAdvertisement(ctx, req.AdvertisementId)
+	if err != nil {
+		if errors.Is(err, models.ErrAdvertisementNotFound) {
+			return nil, status.Errorf(codes.NotFound, "could not fetch advertisement: %v", err)
+		}
+		return nil, status.Errorf(codes.Internal, "failed to publish advertisement: %v", err)
+	}
+
+	resp := &client.PublishAdvertisementResponse{
+		Advertisement: toGrpcUserAdvertisement(advertisement),
+	}
+
+	return resp, nil
+}
+
+func (s *SwapmeetService) ReturnAdvertisementToDraft(ctx context.Context, req *client.ReturnAdvertisementToDraftRequest) (*client.ReturnAdvertisementToDraftResponse, error) {
+	ctx, err := extractAuthToken(ctx)
+	if err != nil {
+		s.logger.Info(ctx, fmt.Sprintf("failed to extract auth token: %v", err))
+	}
+
+	advertisement, err := s.service.ReturnAdvertisementToDraft(ctx, req.AdvertisementId)
+	if err != nil {
+		if errors.Is(err, models.ErrAdvertisementNotFound) {
+			return nil, status.Errorf(codes.NotFound, "could not fetch advertisement: %v", err)
+		}
+		return nil, status.Errorf(codes.Internal, "failed to publish advertisement: %v", err)
+	}
+
+	resp := &client.ReturnAdvertisementToDraftResponse{
+		Advertisement: toGrpcUserAdvertisement(advertisement),
 	}
 
 	return resp, nil

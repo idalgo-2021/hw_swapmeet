@@ -27,6 +27,9 @@ const (
 	SwapmeetService_CreateAdvertisement_FullMethodName              = "/api.SwapmeetService/CreateAdvertisement"
 	SwapmeetService_UpdateAdvertisement_FullMethodName              = "/api.SwapmeetService/UpdateAdvertisement"
 	SwapmeetService_SubmitAdvertisementForModeration_FullMethodName = "/api.SwapmeetService/SubmitAdvertisementForModeration"
+	SwapmeetService_GetModerationAdvertisements_FullMethodName      = "/api.SwapmeetService/GetModerationAdvertisements"
+	SwapmeetService_PublishAdvertisement_FullMethodName             = "/api.SwapmeetService/PublishAdvertisement"
+	SwapmeetService_ReturnAdvertisementToDraft_FullMethodName       = "/api.SwapmeetService/ReturnAdvertisementToDraft"
 )
 
 // SwapmeetServiceClient is the client API for SwapmeetService service.
@@ -41,6 +44,9 @@ type SwapmeetServiceClient interface {
 	CreateAdvertisement(ctx context.Context, in *CreateAdvertisementRequest, opts ...grpc.CallOption) (*CreateAdvertisementResponse, error)
 	UpdateAdvertisement(ctx context.Context, in *UpdateAdvertisementRequest, opts ...grpc.CallOption) (*UpdateAdvertisementResponse, error)
 	SubmitAdvertisementForModeration(ctx context.Context, in *SubmitAdvertisementForModerationRequest, opts ...grpc.CallOption) (*SubmitAdvertisementForModerationResponse, error)
+	GetModerationAdvertisements(ctx context.Context, in *GetModerationAdvertisementsRequest, opts ...grpc.CallOption) (*GetModerationAdvertisementsResponse, error)
+	PublishAdvertisement(ctx context.Context, in *PublishAdvertisementRequest, opts ...grpc.CallOption) (*PublishAdvertisementResponse, error)
+	ReturnAdvertisementToDraft(ctx context.Context, in *ReturnAdvertisementToDraftRequest, opts ...grpc.CallOption) (*ReturnAdvertisementToDraftResponse, error)
 }
 
 type swapmeetServiceClient struct {
@@ -131,6 +137,36 @@ func (c *swapmeetServiceClient) SubmitAdvertisementForModeration(ctx context.Con
 	return out, nil
 }
 
+func (c *swapmeetServiceClient) GetModerationAdvertisements(ctx context.Context, in *GetModerationAdvertisementsRequest, opts ...grpc.CallOption) (*GetModerationAdvertisementsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetModerationAdvertisementsResponse)
+	err := c.cc.Invoke(ctx, SwapmeetService_GetModerationAdvertisements_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *swapmeetServiceClient) PublishAdvertisement(ctx context.Context, in *PublishAdvertisementRequest, opts ...grpc.CallOption) (*PublishAdvertisementResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PublishAdvertisementResponse)
+	err := c.cc.Invoke(ctx, SwapmeetService_PublishAdvertisement_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *swapmeetServiceClient) ReturnAdvertisementToDraft(ctx context.Context, in *ReturnAdvertisementToDraftRequest, opts ...grpc.CallOption) (*ReturnAdvertisementToDraftResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ReturnAdvertisementToDraftResponse)
+	err := c.cc.Invoke(ctx, SwapmeetService_ReturnAdvertisementToDraft_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SwapmeetServiceServer is the server API for SwapmeetService service.
 // All implementations must embed UnimplementedSwapmeetServiceServer
 // for forward compatibility.
@@ -143,6 +179,9 @@ type SwapmeetServiceServer interface {
 	CreateAdvertisement(context.Context, *CreateAdvertisementRequest) (*CreateAdvertisementResponse, error)
 	UpdateAdvertisement(context.Context, *UpdateAdvertisementRequest) (*UpdateAdvertisementResponse, error)
 	SubmitAdvertisementForModeration(context.Context, *SubmitAdvertisementForModerationRequest) (*SubmitAdvertisementForModerationResponse, error)
+	GetModerationAdvertisements(context.Context, *GetModerationAdvertisementsRequest) (*GetModerationAdvertisementsResponse, error)
+	PublishAdvertisement(context.Context, *PublishAdvertisementRequest) (*PublishAdvertisementResponse, error)
+	ReturnAdvertisementToDraft(context.Context, *ReturnAdvertisementToDraftRequest) (*ReturnAdvertisementToDraftResponse, error)
 	mustEmbedUnimplementedSwapmeetServiceServer()
 }
 
@@ -176,6 +215,15 @@ func (UnimplementedSwapmeetServiceServer) UpdateAdvertisement(context.Context, *
 }
 func (UnimplementedSwapmeetServiceServer) SubmitAdvertisementForModeration(context.Context, *SubmitAdvertisementForModerationRequest) (*SubmitAdvertisementForModerationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitAdvertisementForModeration not implemented")
+}
+func (UnimplementedSwapmeetServiceServer) GetModerationAdvertisements(context.Context, *GetModerationAdvertisementsRequest) (*GetModerationAdvertisementsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetModerationAdvertisements not implemented")
+}
+func (UnimplementedSwapmeetServiceServer) PublishAdvertisement(context.Context, *PublishAdvertisementRequest) (*PublishAdvertisementResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PublishAdvertisement not implemented")
+}
+func (UnimplementedSwapmeetServiceServer) ReturnAdvertisementToDraft(context.Context, *ReturnAdvertisementToDraftRequest) (*ReturnAdvertisementToDraftResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReturnAdvertisementToDraft not implemented")
 }
 func (UnimplementedSwapmeetServiceServer) mustEmbedUnimplementedSwapmeetServiceServer() {}
 func (UnimplementedSwapmeetServiceServer) testEmbeddedByValue()                         {}
@@ -342,6 +390,60 @@ func _SwapmeetService_SubmitAdvertisementForModeration_Handler(srv interface{}, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SwapmeetService_GetModerationAdvertisements_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetModerationAdvertisementsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SwapmeetServiceServer).GetModerationAdvertisements(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SwapmeetService_GetModerationAdvertisements_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SwapmeetServiceServer).GetModerationAdvertisements(ctx, req.(*GetModerationAdvertisementsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SwapmeetService_PublishAdvertisement_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PublishAdvertisementRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SwapmeetServiceServer).PublishAdvertisement(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SwapmeetService_PublishAdvertisement_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SwapmeetServiceServer).PublishAdvertisement(ctx, req.(*PublishAdvertisementRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SwapmeetService_ReturnAdvertisementToDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReturnAdvertisementToDraftRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SwapmeetServiceServer).ReturnAdvertisementToDraft(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SwapmeetService_ReturnAdvertisementToDraft_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SwapmeetServiceServer).ReturnAdvertisementToDraft(ctx, req.(*ReturnAdvertisementToDraftRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SwapmeetService_ServiceDesc is the grpc.ServiceDesc for SwapmeetService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -380,6 +482,18 @@ var SwapmeetService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SubmitAdvertisementForModeration",
 			Handler:    _SwapmeetService_SubmitAdvertisementForModeration_Handler,
+		},
+		{
+			MethodName: "GetModerationAdvertisements",
+			Handler:    _SwapmeetService_GetModerationAdvertisements_Handler,
+		},
+		{
+			MethodName: "PublishAdvertisement",
+			Handler:    _SwapmeetService_PublishAdvertisement_Handler,
+		},
+		{
+			MethodName: "ReturnAdvertisementToDraft",
+			Handler:    _SwapmeetService_ReturnAdvertisementToDraft_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

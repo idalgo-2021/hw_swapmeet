@@ -34,8 +34,11 @@ func NewRouter(ctx context.Context, authClient *grpc_clients.AuthClient, swapmee
 	r.Handle("/advertisements/user", handlers.AuthMiddleware(authClient)(http.HandlerFunc(swapmeetHandlers.GetUserAdvertisements))).Methods(http.MethodGet)
 	r.Handle("/advertisements", handlers.AuthMiddleware(authClient)(http.HandlerFunc(swapmeetHandlers.CreateAdvertisement))).Methods(http.MethodPost)
 	r.Handle("/advertisements", handlers.AuthMiddleware(authClient)(http.HandlerFunc(swapmeetHandlers.UpdateAdvertisement))).Methods(http.MethodPut)
+	r.Handle("/advertisement/{id}/submit-for-moderation", handlers.AuthMiddleware(authClient)(http.HandlerFunc(swapmeetHandlers.SubmitAdvertisementForModeration))).Methods(http.MethodPut)
 
-	r.Handle("/advertisement/moderation/{id:[0-9]+}", handlers.AuthMiddleware(authClient)(http.HandlerFunc(swapmeetHandlers.SubmitAdvertisementForModeration))).Methods(http.MethodPut)
+	r.Handle("/advertisements/moderation", handlers.AuthMiddleware(authClient)(http.HandlerFunc(swapmeetHandlers.GetModerationAdvertisements))).Methods(http.MethodGet)
+	r.Handle("/advertisement/{id:[0-9]+}/publish", handlers.AuthMiddleware(authClient)(http.HandlerFunc(swapmeetHandlers.PublishAdvertisement))).Methods(http.MethodPut)
+	r.Handle("/advertisement/{id:[0-9]+}/return-to-draft", handlers.AuthMiddleware(authClient)(http.HandlerFunc(swapmeetHandlers.ReturnAdvertisementToDraft))).Methods(http.MethodPut)
 
 	r.Use(loggingMiddleware(ctx))
 

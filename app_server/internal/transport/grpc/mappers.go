@@ -24,58 +24,17 @@ func toGrpcCategories(categories []models.Category) []*client.Category {
 	return grpcCategories
 }
 
-func toGrpcPublishedAdvertisement(advertisement *models.PublishedAdvertisement) *client.PublishedAdvertisement {
-	if advertisement == nil {
-		return nil
-	}
-	return &client.PublishedAdvertisement{
-		Id:           advertisement.ID,
-		UserId:       advertisement.UserID,
-		UserName:     advertisement.UserName,
-		StatusId:     advertisement.StatusID,
-		StatusName:   advertisement.StatusName,
-		CategoryId:   advertisement.CategoryID,
-		CategoryName: advertisement.CategoryName,
-		CreatedAt:    advertisement.CreatedAt,
-		LastUpd:      advertisement.LastUpd,
-		Title:        advertisement.Title,
-		Description:  advertisement.Description,
-		Price:        advertisement.Price,
-		ContactInfo:  advertisement.ContactInfo,
-	}
-}
+////
 
-func toGrpcPublishedAdvertisements(advertisements []models.PublishedAdvertisement) []*client.PublishedAdvertisement {
-	grpcAdvertisements := make([]*client.PublishedAdvertisement, len(advertisements))
+func toGrpcUserAdvertisements(advertisements []models.UserAdvertisement) []*client.UserAdvertisement {
+	grpcAdvertisements := make([]*client.UserAdvertisement, len(advertisements))
 	for i, advertisement := range advertisements {
-		grpcAdvertisements[i] = toGrpcPublishedAdvertisement(&advertisement)
+		grpcAdvertisements[i] = toGrpcUserAdvertisement(&advertisement)
 	}
 	return grpcAdvertisements
 }
 
-func modelToGrpcUserAdvertisements(advertisements []models.UserAdvertisement) []*client.UserAdvertisement {
-	var grpcAdvertisements []*client.UserAdvertisement
-	for _, advertisement := range advertisements {
-		grpcAdvertisements = append(grpcAdvertisements, &client.UserAdvertisement{
-			Id:           advertisement.ID,
-			UserId:       advertisement.UserID,
-			UserName:     advertisement.UserName,
-			StatusId:     advertisement.StatusID,
-			StatusName:   advertisement.StatusName,
-			CategoryId:   advertisement.CategoryID,
-			CategoryName: advertisement.CategoryName,
-			CreatedAt:    advertisement.CreatedAt,
-			LastUpd:      advertisement.LastUpd,
-			Title:        advertisement.Title,
-			Description:  advertisement.Description,
-			Price:        advertisement.Price,
-			ContactInfo:  advertisement.ContactInfo,
-		})
-	}
-	return grpcAdvertisements
-}
-
-func modelToGrpcUserAdvertisement(advertisement *models.UserAdvertisement) *client.UserAdvertisement {
+func toGrpcUserAdvertisement(advertisement *models.UserAdvertisement) *client.UserAdvertisement {
 	if advertisement == nil {
 		return nil
 	}

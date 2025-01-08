@@ -30,7 +30,7 @@ func marshalCategory(category models.Category) (string, error) {
 	return string(data), nil
 }
 
-func marshalAdvertisements(advertisements []models.PublishedAdvertisement) (string, error) {
+func marshalAdvertisements(advertisements []models.UserAdvertisement) (string, error) {
 	data, err := json.Marshal(advertisements)
 	if err != nil {
 		return "", err
@@ -38,8 +38,8 @@ func marshalAdvertisements(advertisements []models.PublishedAdvertisement) (stri
 	return string(data), nil
 }
 
-func unmarshalAdvertisements(data string) ([]models.PublishedAdvertisement, error) {
-	var advertisements []models.PublishedAdvertisement
+func unmarshalAdvertisements(data string) ([]models.UserAdvertisement, error) {
+	var advertisements []models.UserAdvertisement
 	err := json.Unmarshal([]byte(data), &advertisements)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func unmarshalAdvertisements(data string) ([]models.PublishedAdvertisement, erro
 	return advertisements, nil
 }
 
-func marshalAdvertisement(advertisement models.PublishedAdvertisement) (string, error) {
+func marshalAdvertisement(advertisement models.UserAdvertisement) (string, error) {
 	data, err := json.Marshal(advertisement)
 	if err != nil {
 		return "", err
