@@ -241,6 +241,9 @@ func (s *SwapmeetService) PublishAdvertisement(ctx context.Context, req *client.
 		if errors.Is(err, models.ErrAdvertisementNotFound) {
 			return nil, status.Errorf(codes.NotFound, "could not fetch advertisement: %v", err)
 		}
+		if errors.Is(err, models.ErrAdvertisementNotPublishable) {
+			return nil, status.Errorf(codes.AlreadyExists, "could not fetch advertisement: %v", err)
+		}
 		return nil, status.Errorf(codes.Internal, "failed to publish advertisement: %v", err)
 	}
 
@@ -262,6 +265,10 @@ func (s *SwapmeetService) ReturnAdvertisementToDraft(ctx context.Context, req *c
 		if errors.Is(err, models.ErrAdvertisementNotFound) {
 			return nil, status.Errorf(codes.NotFound, "could not fetch advertisement: %v", err)
 		}
+		if errors.Is(err, models.ErrAdvertisementAlreadyDraft) {
+			return nil, status.Errorf(codes.AlreadyExists, "could not fetch advertisement: %v", err)
+		}
+
 		return nil, status.Errorf(codes.Internal, "failed to publish advertisement: %v", err)
 	}
 

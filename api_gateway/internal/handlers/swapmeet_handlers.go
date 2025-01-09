@@ -329,7 +329,7 @@ func (h *SwapmeetHandlers) GetModerationAdvertisements(w http.ResponseWriter, r 
 
 // @Summary Publish advertisement
 // @Description Publish advertisement for a given ID by moderator
-// @Tags advertisement
+// @Tags Advertisements moderation
 // @Accept  json
 // @Produce  json
 // @Param Authorization header string true "Bearer Access Token"
@@ -337,6 +337,7 @@ func (h *SwapmeetHandlers) GetModerationAdvertisements(w http.ResponseWriter, r 
 // @Success 200 {object} pb.PublishAdvertisementResponse
 // @Failure 400 {object} string"Invalid request"
 // @Failure 404 {object} string "Advertisement not found"
+// @Failure 409 {object} string "Advertisement cannot be published because of its current status"
 // @Failure 500 {object} string "Internal server error"
 // @Router /advertisement/{id}/publish [put]
 func (h *SwapmeetHandlers) PublishAdvertisement(w http.ResponseWriter, r *http.Request) {
@@ -363,7 +364,7 @@ func (h *SwapmeetHandlers) PublishAdvertisement(w http.ResponseWriter, r *http.R
 
 // @Summary Return advertisement to draft
 // @Description Return advertisement back to draft for a given ID by moderator
-// @Tags advertisement
+// @Tags Advertisements moderation
 // @Accept  json
 // @Produce  json
 // @Param Authorization header string true "Bearer Access Token"

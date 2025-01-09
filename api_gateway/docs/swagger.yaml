@@ -252,13 +252,17 @@ paths:
           description: Advertisement not found
           schema:
             type: string
+        "409":
+          description: Advertisement cannot be published because of its current status
+          schema:
+            type: string
         "500":
           description: Internal server error
           schema:
             type: string
       summary: Publish advertisement
       tags:
-      - advertisement
+      - Advertisements moderation
   /advertisement/{id}/return-to-draft:
     put:
       consumes:
@@ -296,7 +300,7 @@ paths:
             type: string
       summary: Return advertisement to draft
       tags:
-      - advertisement
+      - Advertisements moderation
   /advertisement/{id}/submit-for-moderation:
     put:
       consumes:

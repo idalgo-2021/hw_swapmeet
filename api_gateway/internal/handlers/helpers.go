@@ -91,6 +91,8 @@ func (h *SwapmeetHandlers) handleGRPCError(ctx context.Context, err error, w htt
 			http.Error(w, grpcErr.Message(), http.StatusNotFound)
 		case codes.InvalidArgument:
 			http.Error(w, grpcErr.Message(), http.StatusBadRequest)
+		case codes.AlreadyExists:
+			http.Error(w, grpcErr.Message(), http.StatusConflict)
 		default:
 			http.Error(w, grpcErr.Message(), http.StatusInternalServerError)
 		}

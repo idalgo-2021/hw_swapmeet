@@ -74,6 +74,8 @@ func (r *DBSwapmeetRepo) getPublishedAdvertisementsFromDB(ctx context.Context, c
 		args = append(args, pq.Array(categoryIDs))
 	}
 
+	query += " ORDER BY a.id"
+
 	err := r.db.Db.SelectContext(ctx, &advertisements, query, args...)
 	if err != nil {
 		r.logger.Info(ctx, fmt.Sprintf("DB query error: %v", err))
@@ -182,6 +184,7 @@ func (r *DBSwapmeetRepo) getUserAdvertisementsFromDB(ctx context.Context, userID
 		JOIN statuses s ON a.status_id = s.id
 		JOIN categories c ON a.category_id = c.id
 		WHERE a.user_id = $1
+		ORDER BY a.id
 	`
 	err := r.db.Db.SelectContext(ctx, &advertisements, query, userID)
 	if err != nil {
@@ -356,6 +359,8 @@ func (r *DBSwapmeetRepo) getAdvertisementsFromDB(ctx context.Context, statuses, 
 		argIndex++
 	}
 
+	query += " ORDER BY a.id"
+
 	err := r.db.Db.SelectContext(ctx, &advertisements, query, args...)
 	if err != nil {
 		r.logger.Info(ctx, fmt.Sprintf("DB query error: %v", err))
@@ -373,30 +378,85 @@ func (r *DBSwapmeetRepo) getAdvertisementsFromDB(ctx context.Context, statuses, 
 
 func (r *DBSwapmeetRepo) PublishAdvertisement(ctx context.Context, advertisementID string) (*models.UserAdvertisement, error) {
 
-	var advertisement models.UserAdvertisement
+	tx, err := r.db.Db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
 
-	query := `
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		} else if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	// Шаг 1: Блокировка записи и получение её текущего статуса
+	var currentStatus string
+	err = tx.QueryRowContext(ctx, `
+        SELECT s.status 
+        FROM advertisements a
+        JOIN statuses s ON a.status_id = s.id
+        WHERE a.id = $1 FOR UPDATE
+    `, advertisementID).Scan(&currentStatus)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrAdvertisementNotFound
+		}
+		return nil, err
+	}
+
+	if currentStatus != "moderation" {
+		return nil, models.ErrAdvertisementNotPublishable
+	}
+
+	// Шаг 2: Получение ID статуса "published"
+	var publishedStatusID string
+	err = tx.QueryRowContext(ctx, `
+        SELECT id 
+        FROM statuses 
+        WHERE status = 'published'
+    `).Scan(&publishedStatusID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Шаг 3: Обновление статуса
+	_, err = tx.ExecContext(ctx, `
         UPDATE advertisements 
-        SET last_upd = NOW(), status_id = (
-            SELECT id FROM statuses WHERE status = 'published'
-        )
-        WHERE id = $1
-        RETURNING 
-            a.id,  
-            a.user_id,
-            u.name AS user_name, 
-            a.status_id, 
-            s.status AS status_name,
-            a.category_id,
-            c.name AS category_name,  
-            TO_CHAR(a.created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at,
-            TO_CHAR(a.last_upd, 'YYYY-MM-DD HH24:MI:SS') AS last_upd,
-            a.title, 
-            a.description, 
-            TO_CHAR(a.price, 'FM9999999.99') AS price,
-            a.contact_info
-    `
-	err := r.db.Db.QueryRowContext(ctx, query, advertisementID).Scan(
+        SET last_upd = NOW(), status_id = $1
+        WHERE id = $2
+    `, publishedStatusID, advertisementID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Шаг 4: Получение информации о объявлении
+	var advertisement models.UserAdvertisement
+	err = tx.QueryRowContext(ctx, `
+        SELECT 
+			a.id,  
+			a.user_id,
+			u.name AS user_name,
+			a.status_id, 
+			s.status AS status_name,
+			a.category_id,
+			c.name AS category_name,
+			TO_CHAR(a.created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at,
+			TO_CHAR(a.last_upd, 'YYYY-MM-DD HH24:MI:SS') AS last_upd,
+			a.title, 
+			a.description, 
+			TO_CHAR(a.price, 'FM9999999.99') AS price,
+			a.contact_info
+		FROM advertisements a
+		JOIN users u ON a.user_id = u.base_id
+		JOIN statuses s ON a.status_id = s.id
+		JOIN categories c ON a.category_id = c.id
+		WHERE a.id = $1;
+	`, advertisementID).Scan(
 		&advertisement.ID,
 		&advertisement.UserID,
 		&advertisement.UserName,
@@ -428,28 +488,86 @@ func (r *DBSwapmeetRepo) ReturnAdvertisementToDraft(ctx context.Context, adverti
 
 	var advertisement models.UserAdvertisement
 
-	query := `
+	tx, err := r.db.Db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		} else if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	// Шаг 1: Блокировка записи и получение её текущего статуса
+	var currentStatus string
+	err = tx.QueryRowContext(ctx, `
+        SELECT s.status 
+        FROM advertisements a
+        JOIN statuses s ON a.status_id = s.id
+        WHERE a.id = $1
+        FOR UPDATE
+    `, advertisementID).Scan(&currentStatus)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrAdvertisementNotFound
+		}
+		return nil, err
+	}
+
+	// Если объявление уже в статусе draft, не обновляем его
+	if currentStatus == "draft" {
+		return nil, models.ErrAdvertisementAlreadyDraft
+	}
+
+	// Шаг 2: Получение ID статуса "draft"
+	var draftStatusID string
+	err = tx.QueryRowContext(ctx, `
+        SELECT id 
+        FROM statuses 
+        WHERE status = 'draft'
+    `).Scan(&draftStatusID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Шаг 3: Обновление статуса на "draft"
+	_, err = tx.ExecContext(ctx, `
         UPDATE advertisements 
-        SET last_upd = NOW(), status_id = (
-            SELECT id FROM statuses WHERE status = 'draft'
-        )
-        WHERE id = $1
-        RETURNING 
-            a.id,  
-            a.user_id,
-            u.name AS user_name, 
-            a.status_id, 
-            s.status AS status_name,
-            a.category_id,
-            c.name AS category_name,  
-            TO_CHAR(a.created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at,
-            TO_CHAR(a.last_upd, 'YYYY-MM-DD HH24:MI:SS') AS last_upd,
-            a.title, 
-            a.description, 
-            TO_CHAR(a.price, 'FM9999999.99') AS price,
-            a.contact_info
-    `
-	err := r.db.Db.QueryRowContext(ctx, query, advertisementID).Scan(
+        SET last_upd = NOW(), status_id = $1
+        WHERE id = $2
+    `, draftStatusID, advertisementID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Шаг 4: Получение информации о объявлении после обновления
+	err = tx.QueryRowContext(ctx, `
+        SELECT 
+			a.id,  
+			a.user_id,
+			u.name AS user_name,
+			a.status_id, 
+			s.status AS status_name,
+			a.category_id,
+			c.name AS category_name,
+			TO_CHAR(a.created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at,
+			TO_CHAR(a.last_upd, 'YYYY-MM-DD HH24:MI:SS') AS last_upd,
+			a.title, 
+			a.description, 
+			TO_CHAR(a.price, 'FM9999999.99') AS price,
+			a.contact_info
+		FROM advertisements a
+		JOIN users u ON a.user_id = u.base_id
+		JOIN statuses s ON a.status_id = s.id
+		JOIN categories c ON a.category_id = c.id
+		WHERE a.id = $1;
+	`, advertisementID).Scan(
 		&advertisement.ID,
 		&advertisement.UserID,
 		&advertisement.UserName,

@@ -81,7 +81,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "advertisement"
+                    "Advertisements moderation"
                 ],
                 "summary": "Publish advertisement",
                 "parameters": [
@@ -119,6 +119,12 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
+                    "409": {
+                        "description": "Advertisement cannot be published because of its current status",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
@@ -138,7 +144,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "advertisement"
+                    "Advertisements moderation"
                 ],
                 "summary": "Return advertisement to draft",
                 "parameters": [
